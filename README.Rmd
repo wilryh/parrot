@@ -20,6 +20,14 @@ out <- prepDocuments(
     processed$documents, processed$vocab, processed$meta
     )
 
+tdm <- doc_to_tdm_fast(out$documents)
+tdm <- tdm[Matrix::rowSums(tdm) > 0,]
+
+embeddings <- read_word_embeddings2(
+    indata=out$vocab,
+    ovefile = "path/to/file"
+    )
+
 scores <- scale_text(
     meta=out$meta,
     tdm=tdm,
@@ -30,12 +38,21 @@ scores <- scale_text(
     embedding_vocab=as.character(
         data.frame(embeddings)$word
         ),
-    compress_full=FALSE,                    #TRUE for small data sets
+    compress_full=FALSE,        #TRUE for small data sets
     n_dimension_compression=200,
     n_grams=F
     )
 
 document_scores <- score_documents2(
     scores=scores, n_dimensions=10
+    )
+
+get_keywords(scores, n_dimensions=3, n_words=15)
+
+with(document_scores, cor(sqrt(n_words), X1, use="complete"))
+
+plot_keywords(
+    scores, x_dimension=2, y_dimension=3, q_cutoff=0.9,
+    unstretch=F
     )
 ```
