@@ -25,7 +25,8 @@ tdm <- tdm[Matrix::rowSums(tdm) > 0,]
 
 embeddings <- read_word_embeddings2(
     indata=out$vocab,
-    ovefile = "path/to/file"
+    ovefile = "path/to/O2M_overlap.txt"
+    ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
     )
 
 scores <- scale_text(
@@ -33,10 +34,10 @@ scores <- scale_text(
     tdm=tdm,
     vocab=out$vocab,
     embedding_values=as.matrix(
-        data.frame(embeddings) %>% select(-word)
+        data.frame(embeddings[["meta"]]) %>% select(-word)
         )^(1),
     embedding_vocab=as.character(
-        data.frame(embeddings)$word
+        data.frame(embeddings[["meta"]])$word
         ),
     compress_full=FALSE,        #TRUE for small data sets
     n_dimension_compression=200,

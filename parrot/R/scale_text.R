@@ -47,7 +47,8 @@ scale_text <- function(
     if (compress_full) {
         rotated_data <- unname(
             as.matrix(
-                prcomp(standardized_cooccur)$x[,1:n_dimension_compression]
+                prcomp(standardized_cooccur, rank.=n_dimension_compression)$x
+                ## [,1:n_dimension_compression]
                 )
             )
     } else {
@@ -77,7 +78,7 @@ scale_text <- function(
     ## ##
     reg <- cov(X1[,1:2])[1,1]
 
-    ## regularized canonical correlation analysis (rcc)
+    ## regularized canonical correlation analysis (mostly, rcc from CCA)
     ## regularization step
     Cxx1 <- ((var(X1, na.rm = TRUE, use = "pairwise"))) +
         diag(reg, ncol(X1))
