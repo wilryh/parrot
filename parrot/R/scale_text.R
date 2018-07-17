@@ -19,7 +19,7 @@
 
 scale_text <- function(
     tdm, vocab, embedding_values=NULL, embedding_vocab=NULL, compress_full=FALSE,
-    n_dimension_compression=200, n_grams=TRUE, meta
+    n_dimension_compression=200, n_grams=TRUE, meta, pivot1=4, pivot2=4
     )
 {
     ## library(ForeCA)                     #ForeCA::whiten
@@ -41,7 +41,10 @@ scale_text <- function(
     cat("Computing word co-occurrences..\n")
     cooccur <- as.matrix(Matrix::crossprod(tdm_sub))
     word_counts_sub <- diag(cooccur)
-    standardized_cooccur <- scale(sweep(cooccur, 1, word_counts_sub, `/`), scale=F)
+    standardized_cooccur <- scale(
+        sweep(cooccur, 1, word_counts_sub, `/`)^(1/2),
+        scale=F
+        )
 
     cat("Compressing text..\n")
     if (compress_full) {
@@ -70,7 +73,7 @@ scale_text <- function(
 
     cat("Regularizing words and n grams..\n")
     X1 <- rotated_data
-    Y1 <- sweep(ForeCA::whiten(rotated_data)$U, 1, word_counts_sub^4, `*`)
+    Y1 <- sweep(ForeCA::whiten(rotated_data)$U, 1, word_counts_sub^(pivot1), `*`)
 
     ## thercc1 <- rcc(X1, Y1, lambda1=100, lambda2=0)
     ## word_scores1 = thercc1$scores$xscores
@@ -94,33 +97,35 @@ scale_text <- function(
     Y1.aux[is.na(Y1.aux)] = 0
     ##
     word_scores1 = X1.aux %*% res1$xcoef
-    pivot_scores = sqrt(rowSums((res1$cor * (Y1.aux %*% res1$ycoef))^2))
+    pivot_scores = sqrt(rowSums(((Y1.aux %*% res1$ycoef))^2))
     ##
 
     regularized_word_scores1 <- sweep(
         word_scores1, 1,
-        (pivot_scores/max(pivot_scores)) + sqrt(rowSums(word_scores1^2)) +
-        ## 1,
-        ifelse(n_grams, mean(sqrt(rowSums(word_scores1^2))), 0),
-        ## sqrt(pivot_scores),
+        sqrt(rowSums(word_scores1^2))##  *
+        ## (word_counts_sub)^(2 / (1 * log(ncol(tdm))))
+        ,
         `/`
         )
+
 
     cat("Pivoting..\n")
     X2 <- scale(regularized_word_scores1, scale=F)
     if (is.null(embedding_values)) {
         cat("    (no word embeddings provided)\n")
         Y2 <- sweep(
-            ForeCA::whiten(rotated_data)$U, 1,
+            ForeCA::whiten(
+                regularized_word_scores1[,1:n_dimension_compression]
+                )$U, 1,
             pivot_scores *
-            sqrt(word_counts_sub),
+            word_counts_sub^(pivot2),
             `*`
             )
     } else {
         Y2 <- sweep(
             embedding_values_sub, 1,
             pivot_scores *
-            sqrt(word_counts_sub),
+            (word_counts_sub)^(pivot2),
             `*`
             )
     }
