@@ -2,7 +2,7 @@
 
 Parrot scales short text using pivoted text scaling
 
-The package works, but is incomplete.
+The package works, but is incomplete. Let me know if you run into any problems.
 
 Paper: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3044864
 
