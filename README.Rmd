@@ -2,6 +2,8 @@
 
 Parrot scales short text using pivoted text scaling
 
+The package works, but is incomplete.
+
 Paper: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3044864
 
 The method in this code is slightly different from the one in the paper (paper needs to be updated). It uses the square root of counts instead of counts in the word cooccurrence matrix. This makes the first dimension of the output pick up word frequency and document length (so, in general, use dimensions 2 and higher in analyses).
