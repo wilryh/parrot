@@ -1,6 +1,14 @@
 # parrot
 
-Parrot scales short text using canonical pivot analysis
+Parrot scales short text using pivoted text scaling
+
+Paper: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3044864
+
+The method in this code is slightly different from the one in the paper (paper needs to be updated). It uses the square root of counts instead of counts in the word cooccurrence matrix. This makes the first dimension of the output pick up word frequency and document length (so, in general, use dimensions 2 and higher in analyses).
+
+The pivoting is also done in 2 stages for a sharper separation between common words and rare words, along with a standardization in between stages to help with messier data sets (tweets).
+
+Finally, the example below suggests a truncation for the SVD. It is a function of the vocabulary size. The suggested truncation produces approximately the same number of pivot words.
 
 ## Example
 
@@ -23,25 +31,30 @@ out <- prepDocuments(
 tdm <- doc_to_tdm_fast(out$documents)
 tdm <- tdm[Matrix::rowSums(tdm) > 0,]
 
+## the embeddings are optional
 embeddings <- read_word_embeddings2(
     indata=out$vocab,
     ovefile = "path/to/O2M_overlap.txt"
     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
     )
 
+suggested_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1)) # number of pivot words (precise)
+suggested_dimensions_for_prediction <- round(exp(1)^(log(ncol(tdm))/2 - 1)) # expected number of dimensions with more variance in pivot words than rare words (data dependent)
+
 scores <- scale_text(
     meta=out$meta,
     tdm=tdm,
     vocab=out$vocab,
+    # comment out embedding_values and embedding_vocab to use only in-sample data
+    # results will be very similar for most data sets
     embedding_values=as.matrix(
         data.frame(embeddings[["meta"]]) %>% select(-word)
-        )^(1),
+        ), # element wise power not recommended
     embedding_vocab=as.character(
         data.frame(embeddings[["meta"]])$word
         ),
     compress_full=FALSE,        #TRUE for small data sets
-    n_dimension_compression=200,
-    n_grams=F
+    n_dimension_compression=suggested_compression
     )
 
 document_scores <- score_documents2(
