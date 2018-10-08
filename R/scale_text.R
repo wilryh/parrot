@@ -12,9 +12,9 @@
 #' @param compress_fast logical scalar. use R base (F) or RSpectra (T)
 #' @param embedding numeric matrix. A matrix of embedding values.
 #' @param embedding_vocab character vector. Vocabulary for rows of the embedding values (provide if not row names of embeddings).
-#' @param n_dimension_compression integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high.
+#' @param n_dimension_compression integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high. If left NULL, a recommended number of dimensions will be calculated automatically.
 #' @param meta data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.
-#' @param pivot integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 4 is a good bet. If the method does not converge, try lowering \code{n_dimension_compression} before lowering \code{pivot}.
+#' @param pivot integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 2 or 4 is a good bet. If the method does not converge at 2, try lowering \code{n_dimension_compression} to the sqrt of the vocabulary size. If that does not work, you might need to run without out-of-sample embeddings.
 #' @param embeddings_ratio numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling
 #' @param embeddings_count_contribution numeric scalar. Fraction of added out-of-sample words to include as pivot words.
 #' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms

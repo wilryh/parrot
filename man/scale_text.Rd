@@ -8,7 +8,7 @@ scale_text(tdm, tdm_vocab = NULL, embeddings = NULL,
   embeddings_vocab = NULL, embeddings_ratio = NULL,
   embeddings_count_contribution = NULL, compress_fast = FALSE,
   n_dimension_compression = NULL, meta = NULL, pivot = 2,
-  verbose = TRUE, constrain_outliers = TRUE, unfocused = TRUE)
+  verbose = TRUE, constrain_outliers = TRUE)
 }
 \arguments{
 \item{tdm}{sparseMatrix. Rows are documents and columns are vocabulary.}
@@ -21,7 +21,7 @@ scale_text(tdm, tdm_vocab = NULL, embeddings = NULL,
 
 \item{compress_fast}{logical scalar. use R base (F) or RSpectra (T)}
 
-\item{n_dimension_compression}{integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high.}
+\item{n_dimension_compression}{integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high. If left NULL, a recommended number of dimensions will be calculated automatically.}
 
 \item{meta}{data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.}
 
