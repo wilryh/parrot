@@ -107,7 +107,7 @@ read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, tw
             )
         embeddings[["wikipedia"]] <- data.frame(embeddings[["wikipedia"]])
         rownames(embeddings[["wikipedia"]]) <- embeddings[["wikipedia"]]$word
-        embeddings[["wikipedia"]] <- embeddings[["wikipedia"]] %>% select(-word)
+        embeddings[["wikipedia"]] <- embeddings[["wikipedia"]] %>% dplyr::select(-word)
         embeddings[["wikipedia"]] <- as.matrix(embeddings[["wikipedia"]])
         cat("\nFound", nrow(embeddings[["wikipedia"]]), "words.\n")
         ##
@@ -126,7 +126,7 @@ read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, tw
             )
         embeddings[["twitter"]] <- data.frame(embeddings[["twitter"]])
         rownames(embeddings[["twitter"]]) <- embeddings[["twitter"]]$word
-        embeddings[["twitter"]] <- embeddings[["twitter"]] %>% select(-word)
+        embeddings[["twitter"]] <- embeddings[["twitter"]] %>% dplyr::select(-word)
         embeddings[["twitter"]] <- as.matrix(embeddings[["twitter"]])
         cat("\nFound", nrow(embeddings[["twitter"]]), "words.\n")
     }
