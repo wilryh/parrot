@@ -1,6 +1,6 @@
 	# parrot
 
-Parrot scales short text using canonical pivot analysis
+Parrot scales short text around common words.
 
 Let me know if you run into any problems.
 
