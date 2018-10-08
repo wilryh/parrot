@@ -20,14 +20,15 @@ The example below suggests a truncation for the SVD. It is a function of the voc
 
 ```{r example}
 
-install.packages(c("stm","ggplot2","gridExtra","Matrix","reshape2","ForeCA"))
+install.packages(c("stm","ggplot2","gridExtra","Matrix","reshape2","ForeCA","devtools"))
 ## word embeddings
 install.packages(c("dplyr","readr","tidyr"))
 ## recommended
-install.packages(c("RSpectra"))
+install.packages(c("RSpectra","roxygen2"))
 ## optional
 install.packages(c("knitr"))
 
+library(devtools)
 install_github("wilryh/parrot")
 
 library(stm)
