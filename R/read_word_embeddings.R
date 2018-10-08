@@ -90,7 +90,7 @@ read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, tw
         }
         embeddings[["meta"]] <- data.frame(embeddings[["meta"]])
         rownames(embeddings[["meta"]]) <- embeddings[["meta"]]$word
-        embeddings[["meta"]] <- embeddings[["meta"]] %>% dplyr:select(-word)
+        embeddings[["meta"]] <- embeddings[["meta"]] %>% dplyr::select(-word)
         embeddings[["meta"]] <- as.matrix(embeddings[["meta"]])
         cat("\nFound", nrow(embeddings[["meta"]]), "words.\n")
         ##
