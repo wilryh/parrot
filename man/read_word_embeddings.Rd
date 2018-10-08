@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_word_embeddings.R
 \name{read_word_embeddings}
 \alias{read_word_embeddings}
-\title{This function reads a specified set of words from word embedding files quickly and without using much memory.}
+\title{Read word embeddings.}
 \usage{
 read_word_embeddings(indata, ovefile = NA, ovefile2 = NA,
   wikfile = NA, twifile = NA)
@@ -10,19 +10,19 @@ read_word_embeddings(indata, ovefile = NA, ovefile2 = NA,
 \arguments{
 \item{indata}{character vector. This is the vocabulary to look for in the word embeddings.}
 
-\item{ovefile}{O2M_overlap.txt from meta embeddings. This is a meta-analysis of many pre-trained word embeddings. It is recommended.}
+\item{ovefile}{filename. Use this for O2M_overlap.txt from the meta embeddings. This is a meta-analysis of many pre-trained word embeddings. Recommended.}
 
-\item{ovefile2}{O2M_oov.txt from meta embeddings. These are the rare words for the meta-analysis of many pre-trained word embeddings.}
+\item{ovefile2}{filename. Use this for O2M_oov.txt from the meta embeddings. These are the rare words for the meta-analysis of many pre-trained word embeddings.}
 
-\item{wikfile}{glove.6B.300d.txt from Wikipedia embeddings. These word embeddings are trained on Wikipedia entries only.}
+\item{wikfile}{filename. Use this for glove.6B.300d.txt from the Wikipedia embeddings. These word embeddings are trained on Wikipedia entries only.}
 
-\item{twifile}{glove.twitter.27B.200d.txt from Twitter embeddings. These word embeddings are trained on Twitter data only.}
+\item{twifile}{filename. Use this for glove.twitter.27B.200d.txt from the Twitter embeddings. These word embeddings are trained on Twitter data only.}
 }
 \description{
-\code{read_word_embeddings} reads specified words from word embedding text files.
+\code{read_word_embeddings} reads specified words from word embedding files quickly and without using much memory.
 }
 \details{
-Here are a few pre-trained word embeddings that have been hard-coded into this function. You need to first download these files and uncompress them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
+This function reads one or more of the pre-trained word embeddings listed above. You need to first download these files and uncompress them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
 
 Wikipedia embeddings: http://nlp.stanford.edu/data/glove.6B.zip
 Twitter embeddings: http://nlp.stanford.edu/data/glove.twitter.27B.zip
