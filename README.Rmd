@@ -6,7 +6,7 @@ Let me know if you run into any problems.
 
 Paper: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3044864
 
-The method in this code is slightly different from the one in the paper (paper needs to be updated). It uses the square root of counts instead of counts in the word cooccurrence matrix. This makes the first dimension of the output pick up word frequency and document length (so, in general, use dimensions 2 and higher in analyses).
+The method in this code is slightly different from the one in the paper (paper needs to be updated). It uses the square root of counts instead of counts in the word cooccurrence matrix. This makes the 'first' dimension of the output pick up word frequency and document length. This frequency dimension is labeled 'X0' in the output.
 
 The pivoting is also done in 2 stages for a sharper separation between common words and rare words, along with a standardization in between stages to help with messier data sets (tweets).
 
