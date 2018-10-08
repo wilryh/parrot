@@ -86,7 +86,7 @@ read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, tw
                 embeddings[["meta"]],
                 prepembeddingsmeta
                 )
-            embeddings[["meta"]] <- select_if(embeddings[["meta"]], ~sum(!is.na(.)) > 0)
+            embeddings[["meta"]] <- dplyr::select_if(embeddings[["meta"]], ~sum(!is.na(.)) > 0)
         }
         embeddings[["meta"]] <- data.frame(embeddings[["meta"]])
         rownames(embeddings[["meta"]]) <- embeddings[["meta"]]$word

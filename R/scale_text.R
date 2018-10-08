@@ -359,7 +359,7 @@ scale_text <- function(
 
     return(
         list(
-            ## importance = res2$cor,
+            unadjusted_importance = res2$cor,
             vocab = vocab_out,
             tdm = tdm,
             meta = meta,

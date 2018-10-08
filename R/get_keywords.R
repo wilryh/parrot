@@ -19,7 +19,7 @@ get_keywords <- function(scores, n_dimensions, n_words=15, unstretch=TRUE) {
         scores$word_scores <- sweep(
             scores$word_scores, 1,
             sqrt(
-                rowSums((scores$importance[-1] * scores$pivot_scores[,-1])^2)
+                rowSums((scores$unadjusted_importance[-1] * scores$pivot_scores[,-1])^2)
             ) + 1,
             `/`
         )
