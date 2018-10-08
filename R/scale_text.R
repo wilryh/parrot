@@ -17,7 +17,7 @@
 #' @param pivot integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 2 or 4 is a good bet. If the method does not converge at 2, try lowering \code{n_dimension_compression} to the sqrt of the vocabulary size. If that does not work, you might need to run without out-of-sample embeddings.
 #' @param embeddings_ratio numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling
 #' @param embeddings_count_contribution numeric scalar. Fraction of added out-of-sample words to include as pivot words.
-#' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms
+#' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms. Recommended for online surveys (reduce influence of bad data), focused survey questions, and online social media data.
 #' @examples
 #' library(stm)
 #' library(parrot)
