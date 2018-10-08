@@ -22,11 +22,25 @@ read_word_embeddings(indata, ovefile = NA, ovefile2 = NA,
 \code{read_word_embeddings} reads specified words from word embedding files quickly and without using much memory.
 }
 \details{
-This function reads one or more of the pre-trained word embeddings listed above. You need to first download these files and uncompress them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
+This function reads one or more of the pre-trained word embeddings listed above. You need to first download these files and unzip them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
 
 Wikipedia embeddings: http://nlp.stanford.edu/data/glove.6B.zip
 Twitter embeddings: http://nlp.stanford.edu/data/glove.twitter.27B.zip
 Meta embeddings: http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
 
 You can specify one or more pre-trained word embedding files. I recommend the meta embeddings. The full meta embeddings are contained in two files -- one for ordinary words and one for rare words and/or misspellings (that appeared in only a subset of the different text sources).
+}
+\examples{
+\dontrun{
+# download and extract embeddings data first
+
+embeddings <- read_word_embeddings(
+    indata=out$vocab,
+    ovefile = "path/to/O2M_overlap.txt",
+    ovefile2 = "path/to/O2M_oov.txt" # very rare words and misspellings
+    ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
+    ## must unpack and replace "path/to/" with location on your computer
+    )
+}
+
 }

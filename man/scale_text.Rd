@@ -52,8 +52,7 @@ out <- prepDocuments(
 
 tdm <- doc_to_tdm(out)
 
-# wget http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
-# tar -xzvf renamed-meta-emb.tar.gz
+# download and extract embeddings data first
 
 embeddings <- read_word_embeddings(
     indata=out$vocab,
