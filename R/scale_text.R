@@ -18,6 +18,54 @@
 #' @param embeddings_ratio numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling
 #' @param embeddings_count_contribution numeric scalar. Fraction of added out-of-sample words to include as pivot words.
 #' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms
+#' @examples
+#' library(stm)
+#' library(parrot)
+#'
+#' processed <- textProcessor(
+#'     input_data$text,
+#'     data.frame(input_data),
+#'     removestopwords=T, lowercase=T, stem=F
+#'     )
+#' out <- prepDocuments(
+#'     processed$documents, processed$vocab, processed$meta
+#'     )
+#'
+#' tdm <- doc_to_tdm(out)
+#'
+#' # wget http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
+#' # tar -xzvf renamed-meta-emb.tar.gz
+#'
+#' embeddings <- read_word_embeddings(
+#'     indata=out$vocab,
+#'     ovefile = "path/to/O2M_overlap.txt"
+#'     ## ovefile2 = "path/to/O2M_oov.txt", # very rare words and misspellings
+#'     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
+#'     ## must unpack and replace "path/to/" with location on your computer
+#'     )
+#'
+#' scores <- scale_text(
+#'     meta=out$meta,
+#'     tdm=tdm,
+#'     embeddings=as.matrix(
+#'         embeddings[["meta"]
+#'         ),
+#'     compress_fast=TRUE,
+#'     constrain_outliers=TRUE,
+#'     unfocused=TRUE
+#'     )
+#'
+#' document_scores <- score_documents(
+#'     scores=scores, n_dimensions=10
+#'     )
+#'
+#' get_keywords(scores, n_dimensions=3, n_words=15)
+#'
+#' with(document_scores, cor(sqrt(n_words), X0, use="complete"))
+#'
+#' plot_keywords(
+#'     scores, x_dimension=1, y_dimension=2, q_cutoff=0.9
+#'     )
 #'
 
 scale_text <- function(
