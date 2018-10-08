@@ -28,6 +28,8 @@ install.packages(c("RSpectra"))
 ## optional
 install.packages(c("knitr"))
 
+install_github("wilryh/parrot")
+
 library(stm)
 library(parrot)
 
