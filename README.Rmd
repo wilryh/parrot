@@ -12,7 +12,7 @@ The pivoting is also done in 2 stages for a sharper separation between common wo
 
 Finally, there is additional preprocessing step (inside "scale_text()") that makes better use of out-of-sample word embeddings.
 
-The example below suggests a truncation for the SVD. It is a function of the vocabulary size. The suggested truncation produces approximately the same number of pivot words.
+The scale_text function suggests a truncation for the SVD. It is a function of the vocabulary size and produces approximately the same number of pivot words.
 
 ## Example
 
