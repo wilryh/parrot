@@ -4,7 +4,7 @@
 \alias{doc_to_tdm}
 \title{Converts list of documents to sparse term-document matrix}
 \usage{
-doc_to_tdm(.out, binary = FALSE)
+doc_to_tdm(.out, binary = TRUE)
 }
 \arguments{
 \item{documents}{a list of the output from stm \code{prepDocuments}}
