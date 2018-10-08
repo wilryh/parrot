@@ -2,15 +2,25 @@
 #' @export
 #'
 #' @title
-#' Lists keywords
+#' List keywords.
 #'
 #' @description
 #' \code{get_keywords} lists keywords for each scaled text dimension
 #'
 #' @param scores list from output of \code{scale_text}
-#' @param n_dimensions integer scalar. Number of dimensions used to produce keywords.
+#' @param n_dimensions integer scalar/vector. How many/which dimensions to print.
 #' @param n_words integer scalar. How many keywords for each dimension.
 #' @param unstretch logical scalar. Reduce importance of pivot words in specific (<-- and -->) keywords.
+#'
+#' @examples
+#' \dontrun{
+#' scores <- scale_text(
+#'     meta=out$meta,
+#'     tdm=tdm
+#'     )
+#'
+#' get_keywords(scores, n_dimensions=3, n_words=15)
+#' }
 #'
 
 get_keywords <- function(scores, n_dimensions, n_words=15, unstretch=TRUE) {

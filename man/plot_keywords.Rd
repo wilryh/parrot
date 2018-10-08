@@ -15,14 +15,27 @@ plot_keywords(scores, x_dimension = 1, y_dimension = 2,
 
 \item{y_dimension}{integer scalar. Dimension for y axis.}
 
-\item{q_cutoff}{numeric (0-1) scalar. Proportion of words to plot.}
+\item{q_cutoff}{numeric (0-1) scalar. Proportion of words to plot. For example, setting q_cutoff=0.9 will plot the most common 10\% of words.}
 
 \item{plot_density}{logical scalar. Plot both biplot and density.}
 
-\item{unstretch}{logical scalar. Move pivot words towrad origin.}
+\item{unstretch}{logical scalar. Move pivot words toward origin.}
 
 \item{color}{logical scalar. Color words in plot. If vector \code{color} is not provided in \code{scores}, will assign 5 colors using k-means on top 2 through 10 dimensions.}
 }
 \description{
 \code{plot_keywords} plots keywords for each scaled text dimension
+}
+\examples{
+\dontrun{
+scores <- scale_text(
+    meta=out$meta,
+    tdm=tdm
+    )
+
+plot_keywords(
+    scores, x_dimension=1, y_dimension=2, q_cutoff=0.9
+    )
+}
+
 }

@@ -4,16 +4,18 @@
 \alias{scale_text}
 \title{Scale text using pivoted text scaling}
 \usage{
-scale_text(tdm, tdm_vocab = NULL, embeddings = NULL,
-  embeddings_vocab = NULL, embeddings_ratio = NULL,
-  embeddings_count_contribution = NULL, compress_fast = FALSE,
-  n_dimension_compression = NULL, meta = NULL, pivot = 2,
-  verbose = TRUE, constrain_outliers = TRUE)
+scale_text(tdm, meta = NULL, tdm_vocab = NULL, embeddings = NULL,
+  embeddings_vocab = NULL, embeddings_ratio = 1,
+  embeddings_count_contribution = 1, compress_fast = FALSE,
+  n_dimension_compression = NULL, pivot = 2, verbose = TRUE,
+  constrain_outliers = TRUE)
 }
 \arguments{
 \item{tdm}{sparseMatrix. Rows are documents and columns are vocabulary.}
 
-\item{tdm_vocab}{character vector. Vocabulary for columns of the tdm (provide if not in the obj col names).}
+\item{meta}{data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.}
+
+\item{embeddings}{numeric matrix. A matrix of embedding values.}
 
 \item{embeddings_ratio}{numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling}
 
@@ -23,15 +25,9 @@ scale_text(tdm, tdm_vocab = NULL, embeddings = NULL,
 
 \item{n_dimension_compression}{integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high. If left NULL, a recommended number of dimensions will be calculated automatically.}
 
-\item{meta}{data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.}
-
 \item{pivot}{integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 2 or 4 is a good bet. If the method does not converge at 2, try lowering \code{n_dimension_compression} to the sqrt of the vocabulary size. If that does not work, you might need to run without out-of-sample embeddings.}
 
 \item{constrain_outliers}{logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms. Recommended for online surveys (reduce influence of bad data), focused survey questions, and online social media data.}
-
-\item{embedding}{numeric matrix. A matrix of embedding values.}
-
-\item{embedding_vocab}{character vector. Vocabulary for rows of the embedding values (provide if not row names of embeddings).}
 }
 \description{
 \code{scale_text} runs pivoted text scaling

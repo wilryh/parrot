@@ -2,14 +2,34 @@
 % Please edit documentation in R/doc_to_tdm.R
 \name{doc_to_tdm}
 \alias{doc_to_tdm}
-\title{Converts list of documents to sparse term-document matrix}
+\title{Convert list of documents to sparse term-document matrix.}
 \usage{
 doc_to_tdm(.out, binary = TRUE)
 }
 \arguments{
-\item{documents}{a list of the output from stm \code{prepDocuments}}
+\item{binary}{if TRUE (default) then only count one occurrence of a word in a document.}
+
+\item{documents}{a list of the output from stm \code{prepDocuments}.}
 }
 \description{
 \code{doc_to_tdm} converts list of documents from stm package \code{prepDocuments} function
 to a sparse term-document matrix.
+}
+\examples{
+
+\dontrun{
+library(stm)
+
+processed <- textProcessor(
+    input_data$text,
+    data.frame(input_data),
+    removestopwords=T, lowercase=T, stem=F
+    )
+out <- prepDocuments(
+    processed$documents, processed$vocab, processed$meta
+    )
+
+tdm <- doc_to_tdm(out)
+}
+
 }

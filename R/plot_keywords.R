@@ -10,10 +10,22 @@
 #' @param scores List from output of \code{scale_text}.
 #' @param x_dimension integer scalar. Dimension for x axis.
 #' @param y_dimension integer scalar. Dimension for y axis.
-#' @param q_cutoff numeric (0-1) scalar. Proportion of words to plot.
+#' @param q_cutoff numeric (0-1) scalar. Proportion of words to plot. For example, setting q_cutoff=0.9 will plot the most common 10\% of words.
 #' @param plot_density logical scalar. Plot both biplot and density.
-#' @param unstretch logical scalar. Move pivot words towrad origin.
+#' @param unstretch logical scalar. Move pivot words toward origin.
 #' @param color logical scalar. Color words in plot. If vector \code{color} is not provided in \code{scores}, will assign 5 colors using k-means on top 2 through 10 dimensions.
+#'
+#' @examples
+#' \dontrun{
+#' scores <- scale_text(
+#'     meta=out$meta,
+#'     tdm=tdm
+#'     )
+#'
+#' plot_keywords(
+#'     scores, x_dimension=1, y_dimension=2, q_cutoff=0.9
+#'     )
+#' }
 #'
 
 plot_keywords <- function(

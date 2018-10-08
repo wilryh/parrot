@@ -9,8 +9,19 @@ score_documents(scores, n_dimensions = 10)
 \arguments{
 \item{scores}{list from output of \code{scale_text}}
 
-\item{n_dimensions}{how many dimensions of scaled text to use}
+\item{n_dimensions}{how many dimensions of scaled text to score}
 }
 \description{
 \code{score_documents} uses word scores to assign document scores
+}
+\examples{
+
+scores <- scale_text(
+    meta=out$meta,
+    tdm=tdm
+    )
+
+document_scores <- score_documents(
+    scores=scores, n_dimensions=10
+    )
 }

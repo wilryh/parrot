@@ -8,7 +8,18 @@
 #' \code{score_documents} uses word scores to assign document scores
 #'
 #' @param scores list from output of \code{scale_text}
-#' @param n_dimensions how many dimensions of scaled text to use
+#' @param n_dimensions how many dimensions of scaled text to score
+#'
+#' @examples
+#'
+#' scores <- scale_text(
+#'     meta=out$meta,
+#'     tdm=tdm
+#'     )
+#'
+#' document_scores <- score_documents(
+#'     scores=scores, n_dimensions=10
+#'     )
 
 score_documents <- function(scores, n_dimensions=10)
     {

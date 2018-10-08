@@ -2,14 +2,14 @@
 % Please edit documentation in R/get_keywords.R
 \name{get_keywords}
 \alias{get_keywords}
-\title{Lists keywords}
+\title{List keywords.}
 \usage{
 get_keywords(scores, n_dimensions, n_words = 15, unstretch = TRUE)
 }
 \arguments{
 \item{scores}{list from output of \code{scale_text}}
 
-\item{n_dimensions}{integer scalar. Number of dimensions used to produce keywords.}
+\item{n_dimensions}{integer scalar/vector. How many/which dimensions to print.}
 
 \item{n_words}{integer scalar. How many keywords for each dimension.}
 
@@ -17,4 +17,15 @@ get_keywords(scores, n_dimensions, n_words = 15, unstretch = TRUE)
 }
 \description{
 \code{get_keywords} lists keywords for each scaled text dimension
+}
+\examples{
+\dontrun{
+scores <- scale_text(
+    meta=out$meta,
+    tdm=tdm
+    )
+
+get_keywords(scores, n_dimensions=3, n_words=15)
+}
+
 }
