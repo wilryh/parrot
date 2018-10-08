@@ -4,14 +4,16 @@
 \alias{get_keywords}
 \title{Lists keywords}
 \usage{
-get_keywords(scores, n_dimensions, n_words = 15)
+get_keywords(scores, n_dimensions, n_words = 15, unstretch = TRUE)
 }
 \arguments{
 \item{scores}{list from output of \code{scale_text}}
 
-\item{n_dimensions}{number of dimensions used to produce keywords}
+\item{n_dimensions}{integer scalar. Number of dimensions used to produce keywords.}
 
-\item{n_words}{how many keywords for each dimension}
+\item{n_words}{integer scalar. How many keywords for each dimension.}
+
+\item{unstretch}{logical scalar. Reduce importance of pivot words in specific (<-- and -->) keywords.}
 }
 \description{
 \code{get_keywords} lists keywords for each scaled text dimension

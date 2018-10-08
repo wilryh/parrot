@@ -4,26 +4,24 @@
 \alias{plot_keywords}
 \title{Plots keywords}
 \usage{
-plot_keywords(scores, x_dimension = 1, y_dimension = 2, q_cutoff = 0.9,
-  plot_density = FALSE, unstretch = FALSE, print_keywords = T,
-  n_words = 12)
+plot_keywords(scores, x_dimension = 1, y_dimension = 2,
+  q_cutoff = 0.9, plot_density = FALSE, unstretch = FALSE,
+  color = FALSE)
 }
 \arguments{
-\item{scores}{list from output of \code{scale_text}}
+\item{scores}{List from output of \code{scale_text}.}
 
-\item{x_dimension}{integer scalar. dimension for x axis}
+\item{x_dimension}{integer scalar. Dimension for x axis.}
 
-\item{y_dimension}{integer scalar. dimension for y axis}
+\item{y_dimension}{integer scalar. Dimension for y axis.}
 
-\item{q_cutoff}{numeric (0-1) scalar. proportion of words to plot}
+\item{q_cutoff}{numeric (0-1) scalar. Proportion of words to plot.}
 
-\item{plot_density}{logical scalar. plot both biplot and density}
+\item{plot_density}{logical scalar. Plot both biplot and density.}
 
-\item{unstretch}{unstretch space before plotting}
+\item{unstretch}{logical scalar. Move pivot words towrad origin.}
 
-\item{print_keywords}{logical scalar. plot biplot, density, and keywords}
-
-\item{n_words}{number of keywords to print}
+\item{color}{logical scalar. Color words in plot. If vector \code{color} is not provided in \code{scores}, will assign 5 colors using k-means on top 2 through 10 dimensions.}
 }
 \description{
 \code{plot_keywords} plots keywords for each scaled text dimension

@@ -2,88 +2,246 @@
 #' @export
 #'
 #' @title
-#' Scale text using canonical pivot analysis
+#' Scale text using pivoted text scaling
 #'
 #' @description
 #' \code{scale_text} runs pivoted text scaling
 #'
-#' @param tdm sparseMatrix. rows are documents, columns are vocab
-#' @param vocab character vector. must align with columns of tdm
-#' @param embedding_values matrix of embedding values
-#' @param embedding_vocab character vector. vocab for rows of embedding values
-#' @param compress_full logical scalar. TRUE for small data sets
-#' @param n_dimension_compression integer scalar. how many dimensions of PCA to use
-#' @param n_grams logical scalar. set to false unless data is extremely clean
-#' @param meta list of data. output of stm's \code{prepDocuments}. must line up with tdm etc
+#' @param tdm sparseMatrix. Rows are documents and columns are vocabulary.
+#' @param tdm_vocab character vector. Vocabulary for columns of the tdm (provide if not in the obj col names).
+#' @param compress_fast logical scalar. use R base (F) or RSpectra (T)
+#' @param embedding numeric matrix. A matrix of embedding values.
+#' @param embedding_vocab character vector. Vocabulary for rows of the embedding values (provide if not row names of embeddings).
+#' @param n_dimension_compression integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high.
+#' @param meta data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.
+#' @param pivot integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 4 is a good bet. If the method does not converge, try lowering \code{n_dimension_compression} before lowering \code{pivot}.
+#' @param embeddings_ratio numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling
+#' @param embeddings_count_contribution numeric scalar. Fraction of added out-of-sample words to include as pivot words.
+#' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms
 #'
 
 scale_text <- function(
-    tdm, vocab, embedding_values=NULL, embedding_vocab=NULL, compress_full=FALSE,
-    n_dimension_compression=200, n_grams=TRUE, meta, pivot1=4, pivot2=4
+                              tdm,
+                              tdm_vocab=NULL,
+                              embeddings=NULL,
+                              embeddings_vocab=NULL,
+                              embeddings_ratio=NULL,
+                              embeddings_count_contribution=NULL,
+                              compress_fast=FALSE,
+                              n_dimension_compression=NULL,
+                              meta=NULL,
+                              pivot=2,
+                              verbose=TRUE,
+                              constrain_outliers=TRUE,
+                              unfocused=TRUE
     )
 {
-    ## library(ForeCA)                     #ForeCA::whiten
-    ## library(CCA)
-    ## library(Matrix)
-    ## library(boot)                       #inv.logit
-    ## library(fda)
 
-    if (!is.null(embedding_vocab)) {
-        cat("\nRemoving vocabulary not in word embeddings..\n")
-        vocab_sub <- vocab[vocab%in%embedding_vocab]
-        tdm_sub <- tdm[,vocab%in%embedding_vocab]
-        ## word_counts_sub <- Matrix::colSums(tdm_sub)
-    } else {
-        vocab_sub <- vocab
-        tdm_sub <- tdm
+    ## check vocab
+    if (!is.null(embeddings_vocab)) {
+        rownames(embeddings) <- embeddings_vocab
+    }
+    if (!is.null(tdm_vocab)) {
+        colnames(tdm) <- tdm_vocab
     }
 
-    cat("Computing word co-occurrences..\n")
-    cooccur <- as.matrix(Matrix::crossprod(tdm_sub))
-    word_counts_sub <- diag(cooccur)
-    standardized_cooccur <- scale(
-        sweep(cooccur, 1, word_counts_sub, `/`)^(1/2),
-        scale=F
-        )
+    if (is.null(rownames(embeddings)) & is.null(names(tdm)) & !is.null(embeddings)) {
+        stop("\nPlease supply vocabulary of term-document matrix and word embeddings\n")
+    }
+    if (is.null(colnames(tdm))) {
+        stop("\nPlease supply vocabulary of term-document matrix\n")
+    }
+    if (is.null(rownames(embeddings)) & !is.null(embeddings)) {
+        stop("\nPlease supply vocabulary of word embeddings\n")
+    }
 
-    cat("Compressing text..\n")
-    if (compress_full) {
-        rotated_data <- unname(
-            as.matrix(
-                prcomp(standardized_cooccur, rank.=n_dimension_compression)$x
-                ## [,1:n_dimension_compression]
-                )
-            )
+    ## check compression
+    if (is.null(n_dimension_compression)) {
+        was_null <- TRUE
+        n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
     } else {
-        loadings <- irlba::irlba(
-            standardized_cooccur, nv=n_dimension_compression, fastpath=F, maxit=500
+        was_null <- FALSE
+    }
+
+    if (is.null(embeddings_ratio)) {
+        embeddings_ratio <- 1
+    }
+
+    if (is.null(embeddings_count_contribution)) {
+        embeddings_count_contribution <- 1
+    }
+
+    ## prep embeddings
+    if (is.null(embeddings)) {
+        vocab_intersect <- colnames(tdm)
+        vocab_out <- vocab_intersect
+    } else {
+        vocab_intersect <- intersect(colnames(tdm), rownames(embeddings))
+        ##
+        tdm_orig <- tdm
+        tdm <- tdm[,vocab_intersect]
+        embeddings <- embeddings[match(vocab_intersect, rownames(embeddings)),]
+        if (!unfocused) {
+            emb <- sweep(
+                    as.matrix(tdm),
+                2, sqrt(Matrix::colSums(tdm)), `/`
+            ) %*% embeddings
+            } else {
+                emb <- as.matrix(tdm) %*% embeddings
+            }
+        emb[is.na(emb)] <- sample(emb, sum(is.na(emb)))
+        emb_rowsums <- sqrt(rowSums(emb^2))
+        emb_rowsums[emb_rowsums==0] <- sample(emb_rowsums[emb_rowsums!=0], length(emb_rowsums[emb_rowsums==0]))
+        if (constrain_outliers) {
+            emb <- emb / (emb_rowsums)
+            }
+        ##
+        if (verbose) cat("\nPreparing word embeddings..\n")
+        ##
+        if (!compress_fast) {
+        if (verbose) cat("    in-sample data..\n")
+            tdm_svd <- svd(as.matrix(tdm), nu=n_dimension_compression, nv=n_dimension_compression)
+            tdm_pcs <- unname(
+                as.matrix(tdm) %*% as.matrix(tdm_svd$v)
+            )
+            ##
+        if (verbose) cat("    embeddings..\n")
+            emb_svd_coefs <- svd(emb, nu=ncol(emb), nv=ncol(emb))$v
+            emb_pcs <- unname(
+                emb %*% emb_svd_coefs
+            )
+        } else {
+            if (!requireNamespace("RSpectra", quietly = TRUE)) {
+                stop(
+                    paste(
+                        "Package \"RSpectra\" needed for option",
+                        "\"compress_fast=TRUE\" to work. Please install it."
+                    ),
+                    call. = FALSE
+                )
+            }
+        if (verbose) cat("    in-sample data..\n")
+            tdm_svd <- RSpectra::svds(
+                                     tdm, k=n_dimension_compression
+                                 )
+            tdm_pcs <- unname(
+                as.matrix(tdm) %*% as.matrix(tdm_svd$v)
+            )
+            ##
+        if (verbose) cat("    embeddings..\n")
+            emb_svd_coefs <- svd(
+                                           emb, nu=ncol(emb)
+                                       )$v
+            emb_pcs <- unname(
+                emb %*% emb_svd_coefs
+            )
+        }
+        ##
+        if (verbose) cat("    aligning..\n")
+        emb_cca <- CCA::rcc(
+                            X=as.matrix(tdm_pcs), Y=emb_pcs[,-(1:1)],
+                            lambda1=cov(tdm_pcs)[1,1], lambda2=cov(emb_pcs)[2,2]
+                         )
+
+        tdm_supp <- (emb_cca$cor^(0.5) * emb_cca$scores$yscores) %*% t(emb_cca$xcoef) %*% t(tdm_svd$v)
+        tdm_supp <- tdm_supp > quantile(
+                           tdm_supp,
+                           1 - ((sum(tdm_orig) * embeddings_ratio) / length(tdm_supp))
+                           )
+
+        vocab_out <- c(colnames(tdm_orig), paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))
+
+        tdm <- as(cbind(tdm_orig, tdm_supp[,colSums(tdm_supp)>0]), "dgCMatrix")
+        colnames(tdm) <- vocab_out
+
+        rownames(embeddings) <- NULL
+        embeddings <- rbind(embeddings, embeddings[colSums(tdm_supp)>0,])
+
+        embeddings <- emb_cca$cor^(0.5) * ((embeddings %*% emb_svd_coefs)[,-(1:1)] %*% emb_cca$ycoef) #
+
+        rownames(embeddings) <-c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))
+
+        if (was_null) {
+            n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
+        }
+
+    }
+
+    if (verbose) cat("Computing word co-occurrences..\n")
+
+    cooccur <- as.matrix(Matrix::crossprod(tdm))
+    ##
+    word_counts <- diag(cooccur)
+    if (!is.null(embeddings)) {
+        word_counts[grepl("_EMB", vocab_out)] <- word_counts[grepl("_EMB", vocab_out)]*embeddings_count_contribution
+        word_counts <- word_counts[vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))]
+    }
+    ##
+    standardized_cooccur <- scale(
+        sweep(cooccur, 1, diag(cooccur), `/`)^(1/2),
+        scale=F
+    )
+
+    if (verbose) cat("Compressing text..\n")
+
+    if (!compress_fast) {
+        cooccur_svd_coefs <- svd(
+            as.matrix(standardized_cooccur), nu=n_dimension_compression, nv=n_dimension_compression
+        )$v
+        rotated_data <- unname(
+            as.matrix(standardized_cooccur) %*% as.matrix(cooccur_svd_coefs)
+        )
+    } else {
+          if (!requireNamespace("RSpectra", quietly = TRUE)) {
+              stop(
+                  paste(
+                      "Package \"RSpectra\" needed for option",
+                      "\"compress_fast=TRUE\" to work. Please install it."
+                     ),
+                  call. = FALSE
+                  )
+          }
+        thesvd_coefs <- RSpectra::svds(
+            as(crossprod(standardized_cooccur), "dgCMatrix"),
+            k=n_dimension_compression
             )$v
         rotated_data <- unname(
-            as.matrix(standardized_cooccur) %*% as.matrix(loadings)
+            as.matrix(standardized_cooccur) %*% as.matrix(thesvd_coefs)
             )
     }
 
-    if (!is.null(embedding_values) & !is.null(embedding_vocab)) {
-        cat("Aligning word embeddings..\n")
-        vocab_loc <- match(vocab_sub, embedding_vocab)
-        ##
-        embedding_vocab_sub <- embedding_vocab[vocab_loc]
-        embedding_values_sub <- embedding_values[vocab_loc,]
-    }
+    if (verbose) cat("Regularizing words and n grams..\n")
+    if (verbose) cat("    power:", pivot,"\n")
 
-    cat("Regularizing words and n grams..\n")
-    X1 <- rotated_data
-    Y1 <- sweep(ForeCA::whiten(rotated_data)$U, 1, word_counts_sub^(pivot1), `*`)
+    if (is.null(embeddings)) {
+        X1 <- rotated_data
+        } else {
+            X1 <- rotated_data[vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB")),]
+            tdm <- tdm[,vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))]
+            vocab_out <- vocab_out[vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))]
+            }
 
-    ## thercc1 <- rcc(X1, Y1, lambda1=100, lambda2=0)
-    ## word_scores1 = thercc1$scores$xscores
-    ## pivot_scores = sqrt(rowSums(thercc1$scores$yscores^2))
-    ## ##
     reg <- cov(X1[,1:2])[1,1]
+
+    if (is.null(embeddings)) {
+    Y1 <- sweep(
+        ForeCA::whiten(X1[,1:n_dimension_compression])$U, 1,
+        word_counts^pivot
+       ,
+        `*`
+    )
+    } else {
+    Y1 <- sweep(
+        (embeddings), 1,
+        word_counts^pivot
+       ,
+        `*`
+    )
+    }
 
     ## regularized canonical correlation analysis (mostly, rcc from CCA)
     ## regularization step
-    Cxx1 <- ((var(X1, na.rm = TRUE, use = "pairwise"))) +
+    Cxx1 <- var(X1, na.rm = TRUE, use = "pairwise") +
         diag(reg, ncol(X1))
     Cyy1 <- var(Y1, na.rm = TRUE, use = "pairwise")
     Cxy1 <- cov(X1, Y1, use = "pairwise")
@@ -93,49 +251,53 @@ scale_text <- function(
     X1.aux = scale(X1, center = TRUE, scale = FALSE)
     Y1.aux = scale(Y1, center = TRUE, scale = FALSE)
     ##
-    X1.aux[is.na(X1.aux)] = 0
-    Y1.aux[is.na(Y1.aux)] = 0
-    ##
     word_scores1 = X1.aux %*% res1$xcoef
-    pivot_scores = sqrt(rowSums(((Y1.aux %*% res1$ycoef))^2))
+    aux_pivots = sqrt(
+        rowSums(((Y1.aux %*% res1$ycoef)^2))
+        )
     ##
 
+
+    if (constrain_outliers) {
     regularized_word_scores1 <- sweep(
         word_scores1, 1,
-        sqrt(rowSums(word_scores1^2))##  *
-        ## (word_counts_sub)^(2 / (1 * log(ncol(tdm))))
+        sqrt(rowSums(word_scores1^2))
         ,
         `/`
-        )
-
-
-    cat("Pivoting..\n")
-    X2 <- scale(regularized_word_scores1, scale=F)
-    if (is.null(embedding_values)) {
-        cat("    (no word embeddings provided)\n")
-        Y2 <- sweep(
-            ForeCA::whiten(
-                regularized_word_scores1[,1:n_dimension_compression]
-                )$U, 1,
-            pivot_scores *
-            word_counts_sub^(pivot2),
-            `*`
-            )
+    )
     } else {
-        Y2 <- sweep(
-            embedding_values_sub, 1,
-            pivot_scores *
-            (word_counts_sub)^(pivot2),
-            `*`
-            )
+        regularized_word_scores1 <- word_scores1
     }
+
+    if (verbose) cat("Pivoting..\n")
+    if (verbose) cat("    power:", pivot,"\n")
+
+    X2 <- regularized_word_scores1
+
+    if (is.null(embeddings)) {
+    if (verbose) cat("    (no word embeddings provided)\n")
+    Y2 <- sweep(
+        ForeCA::whiten(X2)$U, 1,
+        aux_pivots *
+        word_counts^pivot
+       ,
+        `*`
+    )
+    } else {
+    Y2 <- sweep(
+        (embeddings), 1,
+        aux_pivots *
+        word_counts^pivot
+       ,
+        `*`
+    )
+      }
 
     ## regularized canonical correlation analysis (rcc)
     ## pivot step
     Cxx2 <- diag(1, ncol(X2))
-    Cyy2 <- var(Y2, na.rm = TRUE, use = "pairwise")##  +
-    ## diag(100, ncol(Y2))
-    ## Cyy2 <- Cyy2 + diag(max(Cyy2), ncol(Y2))
+    Cyy2 <- var(Y2, na.rm = TRUE, use = "pairwise")
+    ##
     Cxy2 <- cov(X2, Y2, use = "pairwise")
     res2 <- fda::geigen(Cxy2, Cxx2, Cyy2)
     names(res2) <- c("cor", "xcoef", "ycoef")
@@ -143,28 +305,21 @@ scale_text <- function(
     X2.aux = scale(X2, center = TRUE, scale = FALSE)
     Y2.aux = scale(Y2, center = TRUE, scale = FALSE)
     ##
-    X2.aux[is.na(X2.aux)] = 0
-    Y2.aux[is.na(Y2.aux)] = 0
-    ##
 
     word_scores = X2.aux %*% res2$xcoef
-    aux_pivots = Y2.aux %*% res2$ycoef
-    shrink_pivots = sqrt(rowSums(aux_pivots^2))
-    ##
+    pivot_scores = Y2.aux %*% res2$ycoef
 
     return(
         list(
-            importance = res2$cor,
-            vocab = vocab_sub,
-            tdm = tdm_sub,
+            ## importance = res2$cor,
+            vocab = vocab_out,
+            tdm = tdm,
             meta = meta,
+            ## pca_comparison = X1,
             word_scores = word_scores,
-            word_counts = word_counts_sub,
-            pivot_scores = pivot_scores,
-            shrink_pivots = shrink_pivots,
-            aux_pivots = aux_pivots,
-            reg=reg
+            word_counts = word_counts,
+            pivot_scores = pivot_scores
             )
         )
 
-}
+    }

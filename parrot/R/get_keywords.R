@@ -8,57 +8,72 @@
 #' \code{get_keywords} lists keywords for each scaled text dimension
 #'
 #' @param scores list from output of \code{scale_text}
-#' @param n_dimensions number of dimensions used to produce keywords
-#' @param n_words how many keywords for each dimension
+#' @param n_dimensions integer scalar. Number of dimensions used to produce keywords.
+#' @param n_words integer scalar. How many keywords for each dimension.
+#' @param unstretch logical scalar. Reduce importance of pivot words in specific (<-- and -->) keywords.
 #'
 
-get_keywords <- function(scores, n_dimensions, n_words=15) {
-    ## library(knitr)
+get_keywords <- function(scores, n_dimensions, n_words=15, unstretch=TRUE) {
 
-    scores$word_scores <- sweep(
-        scores$word_scores, 1,
-        sqrt(rowMeans(scores$aux_pivots^2))
-        / mean(sqrt(scores$word_counts)) +1,
-        `/`
+    if (unstretch) {
+        scores$word_scores <- sweep(
+            scores$word_scores, 1,
+            sqrt(
+                rowSums((scores$importance[-1] * scores$pivot_scores[,-1])^2)
+            ) + 1,
+            `/`
         )
-
-    for (i in 1:n_dimensions) {
-        ## cat("\nDimension", i, "keywords:")
-        print(knitr::kable(
-            dplyr::data_frame(
-                `<--`=head(
-                    scores$vocab[order(
-                        -scores$word_scores[,i] * scores$pivot_scores,
-                        decreasing=T
-                        )],
-                    n=n_words
-                    ),
-                `<-`=head(
-                    scores$vocab[order(
-                        -scores$aux_pivots[,i] * scores$pivot_scores,
-                        decreasing=T
-                        )],
-                    n=n_words
-                    ),
-                `->`=head(
-                    scores$vocab[order(
-                        scores$aux_pivots[,i] * scores$pivot_scores,
-                        decreasing=T
-                        )],
-                    n=n_words
-                    ),
-                `-->`=head(
-                    scores$vocab[order(
-                        scores$word_scores[,i] * scores$pivot_scores,
-                        decreasing=T
-                        )],
-                    n=n_words
-                    )
-                ), align="c",format="pandoc",
-            caption=paste("Dimension", i, "keywords")
-            ))
-        cat("\n")
     }
 
+    for (i in if (length(n_dimensions)==1) {1:n_dimensions } else {n_dimensions}) {
+        general_keywords <- scores$vocab[order(
+                                   scores$pivot_scores[,i+1] *
+                                   sqrt(rowSums(scores$pivot_scores[,-1]^2)),
+                                   decreasing=T
+                               )]
+        ##
+        specific_keywords <- scores$vocab[order(
+                                    scores$word_scores[,i+1]^3 *
+                                    sqrt(rowSums(scores$pivot_scores[,-1]^2)), #scores$word_counts^(1/2)
+                                    decreasing=T
+                                )]
+        ##
+        keywords <- data.frame(
+            head(
+                rev(specific_keywords),
+                n=n_words
+            ),
+            head(
+                rev(general_keywords),
+                n=n_words
+            ),
+            head(
+                general_keywords,
+                n=n_words
+            ),
+            head(
+                specific_keywords,
+                n=n_words
+            )
+        )
+        names(keywords) <- c("<--","<-","->","-->")
+
+        if (!requireNamespace("knitr", quietly = TRUE)) {
+            ##
+            cat("\nDimension", i, "keywords\n\n")
+            print(keywords, row.names=F)
+            cat("\n")
+        } else {
+            ##
+            print(
+                knitr::kable(
+                           keywords, align="c",format="pandoc",
+                           caption=paste("Dimension", i, "keywords")
+                       )
+            )
+            cat("\n")
+        }
+
+    }
 
 }

@@ -1,11 +1,11 @@
-#' @rdname read_word_embeddings2
+#' @rdname read_word_embeddings
 #' @export
 #'
 #' @title
 #' Reads vocab from word embedding files quickly and with little memory use
 #'
 #' @description
-#' \code{read_word_embeddings2} reads vocab from word embedding text files
+#' \code{read_word_embeddings} reads vocab from word embedding text files
 #'
 #' @details
 #' Wikipedia embeddings: http://nlp.stanford.edu/data/glove.6B.zip
@@ -19,8 +19,27 @@
 #' @param twifile glove.twitter.27B.200d.txt from Twitter embeddings
 #'
 
-read_word_embeddings2 <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, twifile=NA) {
-    library(readr)
+read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, twifile=NA) {
+    ##
+    if (!requireNamespace("readr", quietly = TRUE)) {
+        stop(
+            "Package \"readr\" needed for this function to work. Please install it.",
+            call. = FALSE
+            )
+    }
+    if (!requireNamespace("dplyr", quietly = TRUE)) {
+        stop(
+            "Package \"dplyr\" needed for this function to work. Please install it.",
+            call. = FALSE
+            )
+    }
+    if (!requireNamespace("tidyr", quietly = TRUE)) {
+        stop(
+            "Package \"tidyr\" needed for this function to work. Please install it.",
+            call. = FALSE
+            )
+    }
+    ##
     embeddings <- list()
     ## find words in Wikipedia embeddings
     thefilter <- function(x, pos) subset(x, word %in% unique(indata))
@@ -28,11 +47,13 @@ read_word_embeddings2 <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, t
         cat("\nPulling overlapping words from meta word embeddings..\n")
         embeddings[["meta"]] <- readr::read_delim_chunked(
             ovefile,
-            callback = DataFrameCallback$new(thefilter),
+            callback = readr::DataFrameCallback$new(thefilter),
             delim="\t",
             progress = T, chunk_size = 100000,
             col_names=c("word", "M"),
-            col_types=cols(.default=col_character(), word=col_character()),
+            col_types=readr::cols(
+                .default=readr::col_character(), word=readr::col_character()
+                ),
             quote="", comment="", quoted_na=F, na=character()
             )
         ## separate value columns
@@ -47,11 +68,11 @@ read_word_embeddings2 <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, t
             cat("    pulling rest of words from meta word embeddings..\n")
             prepembeddingsmeta <- readr::read_delim_chunked(
                 ovefile2,
-                callback = DataFrameCallback$new(thefilter),
+                callback = readr::DataFrameCallback$new(thefilter),
                 delim="\t",
                 progress = T, chunk_size = 100000,
                 col_names=c("word", "M"),
-                col_types=cols(.default=col_character(), word=col_character()),
+                col_types=readr::cols(.default=readr::col_character(), word=readr::col_character()),
                 quote="", comment="", quoted_na=F, na=character()
                 )
             ## separate value columns
@@ -63,9 +84,14 @@ read_word_embeddings2 <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, t
                     )
             embeddings[["meta"]] <- dplyr::bind_rows(
                 embeddings[["meta"]],
-                select(data=prepembeddingsmeta, -M201) #empty column
+                prepembeddingsmeta
                 )
+            embeddings[["meta"]] <- select_if(embeddings[["meta"]], ~sum(!is.na(.)) > 0)
         }
+        embeddings[["meta"]] <- data.frame(embeddings[["meta"]])
+        rownames(embeddings[["meta"]]) <- embeddings[["meta"]]$word
+        embeddings[["meta"]] <- embeddings[["meta"]] %>% select(-word)
+        embeddings[["meta"]] <- as.matrix(embeddings[["meta"]])
         cat("\nFound", nrow(embeddings[["meta"]]), "words.\n")
         ##
     }
@@ -73,12 +99,16 @@ read_word_embeddings2 <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, t
         cat("\nPulling words from Wikipedia word embeddings..\n")
         embeddings[["wikipedia"]] <- readr::read_delim_chunked(
             wikfile,
-            callback = DataFrameCallback$new(thefilter),
+            callback = readr::DataFrameCallback$new(thefilter),
             progress = T, chunk_size = 100000,
             delim=" ", col_names=c("word", paste0("W", 1:300)),
-            col_types=cols(.default=col_double(), word=col_character()),
+            col_types=readr::cols(.default=readr::col_double(), word=readr::col_character()),
             quote="", comment="", quoted_na=F, na=character()
             )
+        embeddings[["wikipedia"]] <- data.frame(embeddings[["wikipedia"]])
+        rownames(embeddings[["wikipedia"]]) <- embeddings[["wikipedia"]]$word
+        embeddings[["wikipedia"]] <- embeddings[["wikipedia"]] %>% select(-word)
+        embeddings[["wikipedia"]] <- as.matrix(embeddings[["wikipedia"]])
         cat("\nFound", nrow(embeddings[["wikipedia"]]), "words.\n")
         ##
     }
@@ -88,12 +118,16 @@ read_word_embeddings2 <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, t
         cat("\nPulling words from Twitter word embeddings..\n")
         embeddings[["twitter"]] <- readr::read_delim_chunked(
             twifile,
-            callback = DataFrameCallback$new(thefilter),
+            callback = readr::DataFrameCallback$new(thefilter),
             progress = T, chunk_size = 1000000,
             delim=" ", col_names=c("word", paste0("T", 1:200)),
-            col_types=cols(.default=col_double(), word=col_character()),
+            col_types=readr::cols(.default=readr::col_double(), word=readr::col_character()),
             quote="", comment="", quoted_na=F, na=character()
             )
+        embeddings[["twitter"]] <- data.frame(embeddings[["twitter"]])
+        rownames(embeddings[["twitter"]]) <- embeddings[["twitter"]]$word
+        embeddings[["twitter"]] <- embeddings[["twitter"]] %>% select(-word)
+        embeddings[["twitter"]] <- as.matrix(embeddings[["twitter"]])
         cat("\nFound", nrow(embeddings[["twitter"]]), "words.\n")
     }
     return(embeddings)

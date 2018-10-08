@@ -2,28 +2,36 @@
 % Please edit documentation in R/scale_text.R
 \name{scale_text}
 \alias{scale_text}
-\title{Scale text using canonical pivot analysis}
+\title{Scale text using pivoted text scaling}
 \usage{
-scale_text(tdm, vocab, embedding_values = NULL, embedding_vocab = NULL,
-  compress_full = FALSE, n_dimension_compression = 200, n_grams = TRUE,
-  meta)
+scale_text(tdm, tdm_vocab = NULL, embeddings = NULL,
+  embeddings_vocab = NULL, embeddings_ratio = NULL,
+  embeddings_count_contribution = NULL, compress_fast = FALSE,
+  n_dimension_compression = NULL, meta = NULL, pivot = 2,
+  verbose = TRUE, constrain_outliers = TRUE, unfocused = TRUE)
 }
 \arguments{
-\item{tdm}{sparseMatrix. rows are documents, columns are vocab}
+\item{tdm}{sparseMatrix. Rows are documents and columns are vocabulary.}
 
-\item{vocab}{character vector. must align with columns of tdm}
+\item{tdm_vocab}{character vector. Vocabulary for columns of the tdm (provide if not in the obj col names).}
 
-\item{embedding_values}{matrix of embedding values}
+\item{embeddings_ratio}{numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling}
 
-\item{embedding_vocab}{character vector. vocab for rows of embedding values}
+\item{embeddings_count_contribution}{numeric scalar. Fraction of added out-of-sample words to include as pivot words.}
 
-\item{compress_full}{logical scalar. TRUE for small data sets}
+\item{compress_fast}{logical scalar. use R base (F) or RSpectra (T)}
 
-\item{n_dimension_compression}{integer scalar. how many dimensions of PCA to use}
+\item{n_dimension_compression}{integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high.}
 
-\item{n_grams}{logical scalar. set to false unless data is extremely clean}
+\item{meta}{data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.}
 
-\item{meta}{list of data. output of stm's \code{prepDocuments}. must line up with tdm etc}
+\item{pivot}{integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 4 is a good bet. If the method does not converge, try lowering \code{n_dimension_compression} before lowering \code{pivot}.}
+
+\item{constrain_outliers}{logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms}
+
+\item{embedding}{numeric matrix. A matrix of embedding values.}
+
+\item{embedding_vocab}{character vector. Vocabulary for rows of the embedding values (provide if not row names of embeddings).}
 }
 \description{
 \code{scale_text} runs pivoted text scaling
