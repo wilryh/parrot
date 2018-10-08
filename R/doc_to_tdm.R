@@ -10,7 +10,7 @@
 #'
 #' @param documents a list of the output from stm \code{prepDocuments}
 
-doc_to_tdm <- function(.out, binary=FALSE) { #, vocab
+doc_to_tdm <- function(.out, binary=TRUE) { #, vocab
     if (!requireNamespace("reshape2", quietly = TRUE)) {
         stop(
             "Package \"reshape2\" needed for this function to work. Please install it.",
