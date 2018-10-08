@@ -70,8 +70,7 @@ scores <- scale_text(
         embeddings[["meta"]
         ),
     compress_fast=TRUE,
-    constrain_outliers=TRUE,
-    unfocused=TRUE
+    constrain_outliers=TRUE
     )
 
 document_scores <- score_documents(
