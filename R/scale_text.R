@@ -19,6 +19,7 @@
 #' @param embeddings_count_contribution numeric scalar. Fraction of added out-of-sample words to include as pivot words.
 #' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms. Recommended for online surveys (reduce influence of bad data), focused survey questions, and online social media data.
 #' @examples
+#' \dontrun{
 #' library(stm)
 #' library(parrot)
 #'
@@ -66,6 +67,7 @@
 #' plot_keywords(
 #'     scores, x_dimension=1, y_dimension=2, q_cutoff=0.9
 #'     )
+#' }
 #'
 
 scale_text <- function(
