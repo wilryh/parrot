@@ -2,21 +2,25 @@
 #' @export
 #'
 #' @title
-#' Reads vocab from word embedding files quickly and with little memory use
+#' This function reads a specified set of words from word embedding files quickly and without using much memory.
 #'
 #' @description
-#' \code{read_word_embeddings} reads vocab from word embedding text files
+#' \code{read_word_embeddings} reads specified words from word embedding text files.
 #'
 #' @details
+#' Here are a few pre-trained word embeddings that have been hard-coded into this function. You need to first download these files and uncompress them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
+#'
 #' Wikipedia embeddings: http://nlp.stanford.edu/data/glove.6B.zip
 #' Twitter embeddings: http://nlp.stanford.edu/data/glove.twitter.27B.zip
 #' Meta embeddings: http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
 #'
-#' @param indata character vector. vocab in data set
-#' @param ovefile O2M_overlap.txt from meta embeddings
-#' @param ovefile2 O2M_oov.txt from meta embeddings
-#' @param wikfile glove.6B.300d.txt from Wikipedia embeddings
-#' @param twifile glove.twitter.27B.200d.txt from Twitter embeddings
+#' You can specify one or more pre-trained word embedding files. I recommend the meta embeddings. The full meta embeddings are contained in two files -- one for ordinary words and one for rare words and/or misspellings (that appeared in only a subset of the different text sources).
+#'
+#' @param indata character vector. This is the vocabulary to look for in the word embeddings.
+#' @param ovefile O2M_overlap.txt from meta embeddings. This is a meta-analysis of many pre-trained word embeddings. It is recommended.
+#' @param ovefile2 O2M_oov.txt from meta embeddings. These are the rare words for the meta-analysis of many pre-trained word embeddings.
+#' @param wikfile glove.6B.300d.txt from Wikipedia embeddings. These word embeddings are trained on Wikipedia entries only.
+#' @param twifile glove.twitter.27B.200d.txt from Twitter embeddings. These word embeddings are trained on Twitter data only.
 #'
 
 read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, twifile=NA) {
