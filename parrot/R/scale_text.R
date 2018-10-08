@@ -32,8 +32,8 @@ scale_text <- function(
                               meta=NULL,
                               pivot=2,
                               verbose=TRUE,
-                              constrain_outliers=TRUE,
-                              unfocused=TRUE
+                              constrain_outliers=TRUE## ,
+                              ## unfocused=TRUE
     )
 {
 
@@ -81,14 +81,14 @@ scale_text <- function(
         tdm_orig <- tdm
         tdm <- tdm[,vocab_intersect]
         embeddings <- embeddings[match(vocab_intersect, rownames(embeddings)),]
-        if (!unfocused) {
-            emb <- sweep(
-                    as.matrix(tdm),
-                2, sqrt(Matrix::colSums(tdm)), `/`
-            ) %*% embeddings
-            } else {
+        ## if (!unfocused) {
+            ## emb <- sweep(
+            ##         as.matrix(tdm),
+            ##     2, sqrt(Matrix::colSums(tdm)), `/`
+            ## ) %*% embeddings
+            ## } else {
                 emb <- as.matrix(tdm) %*% embeddings
-            }
+            ## }
         emb[is.na(emb)] <- sample(emb, sum(is.na(emb)))
         emb_rowsums <- sqrt(rowSums(emb^2))
         emb_rowsums[emb_rowsums==0] <- sample(emb_rowsums[emb_rowsums!=0], length(emb_rowsums[emb_rowsums==0]))
