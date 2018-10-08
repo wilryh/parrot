@@ -8,7 +8,7 @@
 #' \code{read_word_embeddings} reads specified words from word embedding files quickly and without using much memory.
 #'
 #' @details
-#' This function reads one or more of the pre-trained word embeddings listed above. You need to first download these files and uncompress them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
+#' This function reads one or more of the pre-trained word embeddings listed above. You need to first download these files and unzip them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
 #'
 #' Wikipedia embeddings: http://nlp.stanford.edu/data/glove.6B.zip
 #' Twitter embeddings: http://nlp.stanford.edu/data/glove.twitter.27B.zip
@@ -21,6 +21,19 @@
 #' @param ovefile2 filename. Use this for O2M_oov.txt from the meta embeddings. These are the rare words for the meta-analysis of many pre-trained word embeddings.
 #' @param wikfile filename. Use this for glove.6B.300d.txt from the Wikipedia embeddings. These word embeddings are trained on Wikipedia entries only.
 #' @param twifile filename. Use this for glove.twitter.27B.200d.txt from the Twitter embeddings. These word embeddings are trained on Twitter data only.
+#'
+#' @examples
+#' \dontrun{
+#' # download and extract embeddings data first
+#'
+#' embeddings <- read_word_embeddings(
+#'     indata=out$vocab,
+#'     ovefile = "path/to/O2M_overlap.txt",
+#'     ovefile2 = "path/to/O2M_oov.txt" # very rare words and misspellings
+#'     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
+#'     ## must unpack and replace "path/to/" with location on your computer
+#'     )
+#' }
 #'
 
 read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, twifile=NA) {
