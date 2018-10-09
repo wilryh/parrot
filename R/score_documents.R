@@ -12,6 +12,7 @@
 #'
 #' @examples
 #'
+#' \dontrun{
 #' scores <- scale_text(
 #'     meta=out$meta,
 #'     tdm=tdm
@@ -20,6 +21,8 @@
 #' document_scores <- score_documents(
 #'     scores=scores, n_dimensions=10
 #'     )
+#' }
+#'
 
 score_documents <- function(scores, n_dimensions=10)
     {

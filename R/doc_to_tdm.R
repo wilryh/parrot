@@ -8,7 +8,7 @@
 #' \code{doc_to_tdm} converts list of documents from stm package \code{prepDocuments} function
 #' to a sparse term-document matrix.
 #'
-#' @param documents a list of the output from stm \code{prepDocuments}.
+#' @param out a list of the output from stm \code{prepDocuments}.
 #' @param binary if TRUE (default) then only count one occurrence of a word in a document.
 #'
 #' @examples
@@ -29,7 +29,7 @@
 #' }
 #'
 
-doc_to_tdm <- function(.out, binary=TRUE) { #, vocab
+doc_to_tdm <- function(out, binary=TRUE) { #, vocab
     if (!requireNamespace("reshape2", quietly = TRUE)) {
         stop(
             "Package \"reshape2\" needed for this function to work. Please install it.",
@@ -37,10 +37,10 @@ doc_to_tdm <- function(.out, binary=TRUE) { #, vocab
             )
     }
 
-    d2 <- reshape2::melt(lapply(.out$documents, function(x) x[1,]))
+    d2 <- reshape2::melt(lapply(out$documents, function(x) x[1,]))
     d2 <- data.frame(
-    reshape2::melt(lapply(.out$documents, function(x) x[1,])),
-        count=reshape2::melt(lapply(.out$documents, function(x) x[2,]))[,1]
+    reshape2::melt(lapply(out$documents, function(x) x[1,])),
+        count=reshape2::melt(lapply(out$documents, function(x) x[2,]))[,1]
         )
 
     if (binary) {
@@ -51,8 +51,8 @@ doc_to_tdm <- function(.out, binary=TRUE) { #, vocab
 
     tdm <- tdm[Matrix::rowSums(tdm) > 0,]
 
-    colnames(tdm) <- .out$vocab
-    rownames(tdm) <- names(.out$documents)
+    colnames(tdm) <- out$vocab
+    rownames(tdm) <- names(out$documents)
 
     return(tdm)
 }

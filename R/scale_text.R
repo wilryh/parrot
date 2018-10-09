@@ -16,6 +16,9 @@
 #' @param embeddings_ratio numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling
 #' @param embeddings_count_contribution numeric scalar. Fraction of added out-of-sample words to include as pivot words.
 #' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms. Recommended for online surveys (reduce influence of bad data), focused survey questions, and online social media data.
+#' @param tdm_vocab character vector. Provide vocabulary for columns of tdm if missing in column names.
+#' @param embeddings_vocab character vector. Provide vocabulary for rows of embeddings[[""]] if missing in row names.
+#' @param verbose logical scalar. Print progress
 #'
 #' @examples
 #' \dontrun{

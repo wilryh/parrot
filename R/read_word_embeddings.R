@@ -41,6 +41,7 @@
 
 read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, twifile=NA) {
     ##
+
     if (!requireNamespace("readr", quietly = TRUE)) {
         stop(
             "Package \"readr\" needed for this function to work. Please install it.",
@@ -59,6 +60,8 @@ read_word_embeddings <- function(indata, ovefile=NA, ovefile2=NA, wikfile=NA, tw
             call. = FALSE
             )
     }
+    `%>%` <- magrittr::`%>%`
+
     ##
     embeddings <- list()
     ## find words in Wikipedia embeddings

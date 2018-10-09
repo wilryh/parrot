@@ -4,12 +4,12 @@
 \alias{doc_to_tdm}
 \title{Convert list of documents to sparse term-document matrix.}
 \usage{
-doc_to_tdm(.out, binary = TRUE)
+doc_to_tdm(out, binary = TRUE)
 }
 \arguments{
-\item{binary}{if TRUE (default) then only count one occurrence of a word in a document.}
+\item{out}{a list of the output from stm \code{prepDocuments}.}
 
-\item{documents}{a list of the output from stm \code{prepDocuments}.}
+\item{binary}{if TRUE (default) then only count one occurrence of a word in a document.}
 }
 \description{
 \code{doc_to_tdm} converts list of documents from stm package \code{prepDocuments} function

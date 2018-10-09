@@ -20,9 +20,9 @@ The scale_text function suggests a truncation for the SVD. It is a function of t
 
 ```{r example}
 
-install.packages(c("stm","ggplot2","gridExtra","Matrix","reshape2","ForeCA","devtools"))
+install.packages(c("stm","ggplot2","gridExtra","Matrix","reshape2","ForeCA","devtools","magrittr"))
 ## word embeddings
-install.packages(c("dplyr","readr","tidyr"))
+install.packages(c("dplyr","readr","tidyr","CCA"))
 ## recommended
 install.packages(c("RSpectra","roxygen2"))
 ## optional
