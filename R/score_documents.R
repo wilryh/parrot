@@ -7,8 +7,9 @@
 #' @description
 #' \code{score_documents} uses word scores to assign document scores
 #'
-#' @param scores list from output of \code{scale_text}
-#' @param n_dimensions how many dimensions of scaled text to score
+#' @param scores A list from output of \code{scale_text}
+#' @param n_dimensions An integer scalar, How many dimensions of scaled text to
+#' score.
 #'
 #' @examples
 #'
@@ -23,6 +24,10 @@
 #'     )
 #' }
 #'
+#' @seealso \code{\link{scale_text}},
+#' \code{\link{read_word_embeddings}},
+#' \code{\link{get_keywords}}, \code{\link{plot_keywords}},
+#' \code{\link{doc_to_tdm}}
 
 score_documents <- function(scores, n_dimensions = 10)
     {

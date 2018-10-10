@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_keywords.R
 \name{plot_keywords}
 \alias{plot_keywords}
-\title{Plots keywords}
+\title{Plots keywords from \code{scale_text}}
 \usage{
 plot_keywords(scores, x_dimension = 1, y_dimension = 2,
   q_cutoff = 0.9, plot_density = FALSE, unstretch = FALSE,
@@ -11,20 +11,23 @@ plot_keywords(scores, x_dimension = 1, y_dimension = 2,
 \arguments{
 \item{scores}{List from output of \code{scale_text}.}
 
-\item{x_dimension}{integer scalar. Dimension for x axis.}
+\item{x_dimension}{An integer scalar. Dimension for x axis.}
 
-\item{y_dimension}{integer scalar. Dimension for y axis.}
+\item{y_dimension}{An integer scalar. Dimension for y axis.}
 
-\item{q_cutoff}{numeric (0-1) scalar. Proportion of words to plot. For example, setting q_cutoff=0.9 will plot the most common 10\% of words.}
+\item{q_cutoff}{A numeric (0-1) scalar. Proportion of words to plot. For
+example, setting q_cutoff=0.9 will plot the most common 10\% of words.}
 
-\item{plot_density}{logical scalar. Plot both biplot and density.}
+\item{plot_density}{A logical scalar. Plot both biplot and density.}
 
-\item{unstretch}{logical scalar. Move pivot words toward origin.}
+\item{unstretch}{A logical scalar. Move pivot words toward origin.}
 
-\item{color}{logical scalar. Color words in plot. If vector \code{color} is not provided in \code{scores}, will assign 5 colors using k-means on top 2 through 10 dimensions.}
+\item{color}{A logical scalar. Color words in plot. If vector \code{color} is
+not provided in \code{scores}, will assign 5 colors using k-means on
+dimensions 1 through 10.}
 }
 \description{
-\code{plot_keywords} plots keywords for each scaled text dimension
+\code{plot_keywords} plots keywords for each scaled text dimension.
 }
 \examples{
 \dontrun{
@@ -38,4 +41,10 @@ plot_keywords(
     )
 }
 
+}
+\seealso{
+\code{\link{scale_text}},
+\code{\link{read_word_embeddings}},
+\code{\link{get_keywords}},
+\code{\link{score_documents}}, \code{\link{doc_to_tdm}}
 }

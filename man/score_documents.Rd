@@ -7,9 +7,10 @@
 score_documents(scores, n_dimensions = 10)
 }
 \arguments{
-\item{scores}{list from output of \code{scale_text}}
+\item{scores}{A list from output of \code{scale_text}}
 
-\item{n_dimensions}{how many dimensions of scaled text to score}
+\item{n_dimensions}{An integer scalar, How many dimensions of scaled text to
+score.}
 }
 \description{
 \code{score_documents} uses word scores to assign document scores
@@ -18,13 +19,19 @@ score_documents(scores, n_dimensions = 10)
 
 \dontrun{
 scores <- scale_text(
-    meta=out$meta,
-    tdm=tdm
+    meta = out$meta,
+    tdm = tdm
     )
 
 document_scores <- score_documents(
-    scores=scores, n_dimensions=10
+    scores = scores, n_dimensions = 10
     )
 }
 
+}
+\seealso{
+\code{\link{scale_text}},
+\code{\link{read_word_embeddings}},
+\code{\link{get_keywords}}, \code{\link{plot_keywords}},
+\code{\link{doc_to_tdm}}
 }

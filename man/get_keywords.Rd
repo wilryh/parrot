@@ -2,21 +2,23 @@
 % Please edit documentation in R/get_keywords.R
 \name{get_keywords}
 \alias{get_keywords}
-\title{List keywords.}
+\title{List keywords from \code{scale_text}}
 \usage{
 get_keywords(scores, n_dimensions, n_words = 15, unstretch = TRUE)
 }
 \arguments{
-\item{scores}{list from output of \code{scale_text}}
+\item{scores}{List from output of \code{scale_text}.}
 
-\item{n_dimensions}{integer scalar/vector. How many/which dimensions to print.}
+\item{n_dimensions}{Integer scalar or vector. How many/which dimensions to
+print.}
 
-\item{n_words}{integer scalar. How many keywords for each dimension.}
+\item{n_words}{An integer scalar. How many keywords for each dimension.}
 
-\item{unstretch}{logical scalar. Reduce importance of pivot words in specific (<-- and -->) keywords.}
+\item{unstretch}{A logical scalar. Reduce importance of pivot words in
+specific (<-- and -->) keywords.}
 }
 \description{
-\code{get_keywords} lists keywords for each scaled text dimension
+\code{get_keywords} lists keywords for each scaled text dimension.
 }
 \examples{
 \dontrun{
@@ -28,4 +30,9 @@ scores <- scale_text(
 get_keywords(scores, n_dimensions=3, n_words=15)
 }
 
+}
+\seealso{
+\code{\link{read_word_embeddings}},
+\code{\link{plot_keywords}},
+\code{\link{score_documents}}, \code{\link{doc_to_tdm}}
 }

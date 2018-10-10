@@ -7,18 +7,32 @@
 #' @description
 #' \code{scale_text} runs pivoted text scaling
 #'
-#' @param tdm sparseMatrix. Rows are documents and columns are vocabulary.
-#' @param compress_fast logical scalar. use R base (F) or RSpectra (T)
-#' @param embeddings numeric matrix. A matrix of embedding values.
-#' @param n_dimension_compression integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high. If left NULL, a recommended number of dimensions will be calculated automatically.
-#' @param meta data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.
-#' @param pivot integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 2 or 4 is a good bet. If the method does not converge at 2, try lowering \code{n_dimension_compression} to the sqrt of the vocabulary size. If that does not work, you might need to run without out-of-sample embeddings.
-#' @param embeddings_ratio numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling
-#' @param embeddings_count_contribution numeric scalar. Fraction of added out-of-sample words to include as pivot words.
-#' @param constrain_outliers logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms. Recommended for online surveys (reduce influence of bad data), focused survey questions, and online social media data.
-#' @param tdm_vocab character vector. Provide vocabulary for columns of tdm if missing in column names.
-#' @param embeddings_vocab character vector. Provide vocabulary for rows of embeddings[[""]] if missing in row names.
-#' @param verbose logical scalar. Print progress
+#' @param tdm A sparseMatrix. Rows are documents and columns are vocabulary.
+#' @param compress_fast A logical scalar. use R base (F) or RSpectra (T)
+#' @param embeddings A numeric matrix. A matrix of embedding values.
+#' @param n_dimension_compression An integer scalar. How many dimensions of PCA
+#' to use. The algorithm will not work if this is set too high. If left NULL, a
+#' recommended number of dimensions will be calculated automatically.
+#' @param meta data.frame. Must line up with tdm etc. This is included only to
+#' keep track of any accompanying variables. It is unaltered by the function.
+#' @param pivot An integer scalar. This is the power of the pivot. It should be
+#' set as high as possible as long as algorithm still works. 2 or 4 is a good
+#' bet. If the method does not converge at 2, try lowering
+#' \code{n_dimension_compression} to the sqrt of the vocabulary size. If that
+#' does not work, you might need to run without out-of-sample embeddings.
+#' @param embeddings_ratio A numeric scalar. Ratio of out-of-sample word
+#' embeddings to in-sample text for later scaling
+#' @param embeddings_count_contribution A numeric scalar. Fraction of added
+#' out-of-sample words to include as pivot words.
+#' @param constrain_outliers A logical scalar. This requires in-sample words and
+#' embedding scores for documents to have approximately unit norms. Recommended
+#' for online surveys (reduce influence of bad data), focused survey questions,
+#' and online social media data.
+#' @param tdm_vocab A character vector. Provide vocabulary for columns of tdm if
+#' missing in column names.
+#' @param embeddings_vocab A character vector. Provide vocabulary for rows of
+#' chosen embeddings if missing in row names.
+#' @param verbose A logical scalar. Print progress of the function.
 #'
 #' @examples
 #' \dontrun{
@@ -39,9 +53,9 @@
 #' # download and extract embeddings data first
 #'
 #' embeddings <- read_word_embeddings(
-#'     indata = out$vocab,
-#'     ovefile = "path/to/O2M_overlap.txt"
-#'     ## ovefile2 = "path/to/O2M_oov.txt", # very rare words and misspellings
+#'     in_vocab = out$vocab,
+#'     ovefile = "O2M_overlap.txt" # must add location on your computer "path/to/O2M_overlap.txt"
+#'     ## ovefile2 = "O2M_oov.txt", # very rare words and misspellings
 #'     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
 #'     ## must unpack and replace "path/to/" with location on your computer
 #'     )
@@ -68,6 +82,10 @@
 #'     scores, x_dimension = 1, y_dimension = 2, q_cutoff = 0.9
 #'     )
 #' }
+#'
+#' @seealso \code{\link{read_word_embeddings}},
+#' \code{\link{get_keywords}}, \code{\link{plot_keywords}},
+#' \code{\link{score_documents}}, \code{\link{doc_to_tdm}}
 #'
 
 scale_text <- function(tdm,
@@ -142,7 +160,7 @@ scale_text <- function(tdm,
         emb[is.na(emb)] <- sample(emb, sum(is.na(emb)))
         emb_rowsums <- sqrt(rowSums(emb^2))
         emb_rowsums[emb_rowsums == 0] <- sample(
-            emb_rowsums[emb_rowsums! = 0],
+            emb_rowsums[emb_rowsums != 0],
             length(emb_rowsums[emb_rowsums == 0])
         )
         if (constrain_outliers) {

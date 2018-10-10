@@ -11,29 +11,43 @@ scale_text(tdm, meta = NULL, tdm_vocab = NULL, embeddings = NULL,
   constrain_outliers = TRUE)
 }
 \arguments{
-\item{tdm}{sparseMatrix. Rows are documents and columns are vocabulary.}
+\item{tdm}{A sparseMatrix. Rows are documents and columns are vocabulary.}
 
-\item{meta}{data.frame. Must line up with tdm etc. This is included only to keep track of any accompanying variables. It is unaltered by the function.}
+\item{meta}{data.frame. Must line up with tdm etc. This is included only to
+keep track of any accompanying variables. It is unaltered by the function.}
 
-\item{tdm_vocab}{character vector. Provide vocabulary for columns of tdm if missing in column names.}
+\item{tdm_vocab}{A character vector. Provide vocabulary for columns of tdm if
+missing in column names.}
 
-\item{embeddings}{numeric matrix. A matrix of embedding values.}
+\item{embeddings}{A numeric matrix. A matrix of embedding values.}
 
-\item{embeddings_vocab}{character vector. Provide vocabulary for rows of embeddings[[""]] if missing in row names.}
+\item{embeddings_vocab}{A character vector. Provide vocabulary for rows of
+chosen embeddings if missing in row names.}
 
-\item{embeddings_ratio}{numeric scalar. Ratio of out-of-sample word embeddings to in-sample text for later scaling}
+\item{embeddings_ratio}{A numeric scalar. Ratio of out-of-sample word
+embeddings to in-sample text for later scaling}
 
-\item{embeddings_count_contribution}{numeric scalar. Fraction of added out-of-sample words to include as pivot words.}
+\item{embeddings_count_contribution}{A numeric scalar. Fraction of added
+out-of-sample words to include as pivot words.}
 
-\item{compress_fast}{logical scalar. use R base (F) or RSpectra (T)}
+\item{compress_fast}{A logical scalar. use R base (F) or RSpectra (T)}
 
-\item{n_dimension_compression}{integer scalar. How many dimensions of PCA to use. The algorithm will not work if this is set too high. If left NULL, a recommended number of dimensions will be calculated automatically.}
+\item{n_dimension_compression}{An integer scalar. How many dimensions of PCA
+to use. The algorithm will not work if this is set too high. If left NULL, a
+recommended number of dimensions will be calculated automatically.}
 
-\item{pivot}{integer scalar. power of pivot. This should be set as high as possible as long as algorithm still works. 2 or 4 is a good bet. If the method does not converge at 2, try lowering \code{n_dimension_compression} to the sqrt of the vocabulary size. If that does not work, you might need to run without out-of-sample embeddings.}
+\item{pivot}{An integer scalar. This is the power of the pivot. It should be
+set as high as possible as long as algorithm still works. 2 or 4 is a good
+bet. If the method does not converge at 2, try lowering
+\code{n_dimension_compression} to the sqrt of the vocabulary size. If that
+does not work, you might need to run without out-of-sample embeddings.}
 
-\item{verbose}{logical scalar. Print progress}
+\item{verbose}{A logical scalar. Print progress of the function.}
 
-\item{constrain_outliers}{logical scalar. This requires in-sample words and embedding scores for documents to have approximately unit norms. Recommended for online surveys (reduce influence of bad data), focused survey questions, and online social media data.}
+\item{constrain_outliers}{A logical scalar. This requires in-sample words and
+embedding scores for documents to have approximately unit norms. Recommended
+for online surveys (reduce influence of bad data), focused survey questions,
+and online social media data.}
 }
 \description{
 \code{scale_text} runs pivoted text scaling
@@ -46,7 +60,7 @@ library(parrot)
 processed <- textProcessor(
     input_data$text,
     data.frame(input_data),
-    removestopwords=T, lowercase=T, stem=F
+    removestopwords = T, lowercase = T, stem = F
     )
 out <- prepDocuments(
     processed$documents, processed$vocab, processed$meta
@@ -57,34 +71,39 @@ tdm <- doc_to_tdm(out)
 # download and extract embeddings data first
 
 embeddings <- read_word_embeddings(
-    indata=out$vocab,
-    ovefile = "path/to/O2M_overlap.txt"
-    ## ovefile2 = "path/to/O2M_oov.txt", # very rare words and misspellings
+    in_vocab = out$vocab,
+    ovefile = "O2M_overlap.txt" # must add location on your computer "path/to/O2M_overlap.txt"
+    ## ovefile2 = "O2M_oov.txt", # very rare words and misspellings
     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
     ## must unpack and replace "path/to/" with location on your computer
     )
 
 scores <- scale_text(
-    meta=out$meta,
-    tdm=tdm,
-    embeddings=as.matrix(
+    meta = out$meta,
+    tdm = tdm,
+    embeddings = as.matrix(
         embeddings[["meta"]
         ),
-    compress_fast=TRUE,
-    constrain_outliers=TRUE
+    compress_fast = TRUE,
+    constrain_outliers = TRUE
     )
 
 document_scores <- score_documents(
-    scores=scores, n_dimensions=10
+    scores = scores, n_dimensions = 10
     )
 
-get_keywords(scores, n_dimensions=3, n_words=15)
+get_keywords(scores, n_dimensions = 3, n_words = 15)
 
-with(document_scores, cor(sqrt(n_words), X0, use="complete"))
+with(document_scores, cor(sqrt(n_words), X0, use = "complete"))
 
 plot_keywords(
-    scores, x_dimension=1, y_dimension=2, q_cutoff=0.9
+    scores, x_dimension = 1, y_dimension = 2, q_cutoff = 0.9
     )
 }
 
+}
+\seealso{
+\code{\link{read_word_embeddings}},
+\code{\link{get_keywords}}, \code{\link{plot_keywords}},
+\code{\link{score_documents}}, \code{\link{doc_to_tdm}}
 }

@@ -8,12 +8,15 @@
 #' \code{plot_keywords} plots keywords for each scaled text dimension.
 #'
 #' @param scores List from output of \code{scale_text}.
-#' @param x_dimension integer scalar. Dimension for x axis.
-#' @param y_dimension integer scalar. Dimension for y axis.
-#' @param q_cutoff numeric (0-1) scalar. Proportion of words to plot. For example, setting q_cutoff=0.9 will plot the most common 10\% of words.
-#' @param plot_density logical scalar. Plot both biplot and density.
-#' @param unstretch logical scalar. Move pivot words toward origin.
-#' @param color logical scalar. Color words in plot. If vector \code{color} is not provided in \code{scores}, will assign 5 colors using k-means on top 2 through 10 dimensions.
+#' @param x_dimension An integer scalar. Dimension for x axis.
+#' @param y_dimension An integer scalar. Dimension for y axis.
+#' @param q_cutoff A numeric (0-1) scalar. Proportion of words to plot. For
+#' example, setting q_cutoff=0.9 will plot the most common 10\% of words.
+#' @param plot_density A logical scalar. Plot both biplot and density.
+#' @param unstretch A logical scalar. Move pivot words toward origin.
+#' @param color A logical scalar. Color words in plot. If vector \code{color} is
+#' not provided in \code{scores}, will assign 5 colors using k-means on
+#' dimensions 1 through 10.
 #'
 #' @examples
 #' \dontrun{
@@ -26,6 +29,11 @@
 #'     scores, x_dimension=1, y_dimension=2, q_cutoff=0.9
 #'     )
 #' }
+#'
+#' @seealso \code{\link{scale_text}},
+#' \code{\link{read_word_embeddings}},
+#' \code{\link{get_keywords}},
+#' \code{\link{score_documents}}, \code{\link{doc_to_tdm}}
 #'
 
 plot_keywords <- function(scores,
@@ -73,7 +81,7 @@ plot_keywords <- function(scores,
     if (color & !("color" %in% names(scores))) {
         scores$color <- factor(
             kmeans(
-                scores$word_scores[ ,2:10],
+                scores$word_scores[ ,2:11],
                 centers=5
             )$cluster
         )

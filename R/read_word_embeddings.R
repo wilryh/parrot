@@ -2,44 +2,72 @@
 #' @export
 #'
 #' @title
-#' Read word embeddings and formats for input to \code{scale_text}.
+#' Read word embeddings and format for input to \code{scale_text}
 #'
 #' @description
-#' \code{read_word_embeddings} reads specified words from word embedding files quickly and without using much memory. It formats its output for the \code{scale_text} function. The rows of the output are words and the columns are the dimensions from the word embeddings. Correspondingly, the row names are the vocabulary and the column names are the names of the dimensions.
+#' \code{read_word_embeddings} reads specified words from word embedding files
+#' quickly and without using much memory. It formats its output for the
+#' \code{scale_text} function. The rows of the output are words and the columns
+#' are the dimensions from the word embeddings. Correspondingly, the row names
+#' are the vocabulary and the column names are the names of the dimensions.
 #'
 #' @details
-#' This function reads one or more of the pre-trained word embeddings listed above. You need to first download these files and unzip them on your computer before you can use them. Remember to add the file path to the file name when you specify it in this function.
+#' This function reads one or more of the pre-trained word embeddings listed
+#' above. You need to first download these files and unzip them on your computer
+#' before you can use them. Remember to add the file path to the file name when
+#' you specify it in this function.
 #'
-#' Meta embeddings: http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
+#' Meta embeddings:
+#' http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
 #'
 #' Wikipedia embeddings: http://nlp.stanford.edu/data/glove.6B.zip
 #'
 #' Twitter embeddings: http://nlp.stanford.edu/data/glove.twitter.27B.zip
 #'
 #'
-#' You can specify one or more pre-trained word embedding files. I recommend the meta embeddings. The full meta embeddings are contained in two files -- one for ordinary words and one for rare words and/or misspellings (that appeared in only a subset of the different text sources).
+#' You can specify one or more pre-trained word embedding files. I recommend the
+#' meta embeddings. The full meta embeddings are contained in two files -- one
+#' for ordinary words and one for rare words and/or misspellings (that appeared
+#' in only a subset of the different text sources).
 #'
-#' @param indata character vector. This is the vocabulary to look for in the word embeddings.
-#' @param ovefile filename. Use this for O2M_overlap.txt from the meta embeddings. This is a meta-analysis of many pre-trained word embeddings. Recommended.
-#' @param ovefile2 filename. Use this for O2M_oov.txt from the meta embeddings. These are the rare words for the meta-analysis of many pre-trained word embeddings.
-#' @param wikfile filename. Use this for glove.6B.300d.txt from the Wikipedia embeddings. These word embeddings are trained on Wikipedia entries only.
-#' @param twifile filename. Use this for glove.twitter.27B.200d.txt from the Twitter embeddings. These word embeddings are trained on Twitter data only.
+#' @param in_vocab Character vector. This is the vocabulary to look for in the
+#' word embeddings.
+#' @param ovefile A character scalar (filename). Use this for O2M_overlap.txt
+#' from the meta embeddings. This is a meta-analysis of many pre-trained word
+#' embeddings.
+#' Recommended.
+#' @param ovefile2 A character scalar (filename). Use this for O2M_oov.txt from
+#' the meta embeddings. These are the rare words for the meta-analysis of many
+#' pre-trained word
+#' embeddings.
+#' @param wikfile A character scalar (filename). Use this for glove.6B.300d.txt
+#' from the Wikipedia embeddings. These word embeddings are trained on Wikipedia
+#' entries only.
+#' @param twifile A character scalar (filename). Use this for
+#' glove.twitter.27B.200d.txt from the Twitter embeddings. These word embeddings
+#' are trained on Twitter data only.
+#'
+#' @seealso \code{\link{scale_text}}, \code{\link{doc_to_tdm}},
+#' \code{\link{get_keywords}}, \code{\link{plot_keywords}},
+#' \code{\link{score_documents}}
 #'
 #' @examples
 #' \dontrun{
 #' # download and extract embeddings data first
 #'
 #' embeddings <- read_word_embeddings(
-#'     indata = out$vocab,
-#'     ovefile = "path/to/O2M_overlap.txt",
-#'     ovefile2 = "path/to/O2M_oov.txt" # very rare words and misspellings
-#'     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
+#'     in_vocab = out$vocab,
+#'     # must add location on your computer "path/to/O2M_overlap.txt"
+#'     ovefile = "O2M_overlap.txt",
+#'     ovefile2 = "O2M_oov.txt" # very rare words and misspellings
+#'     ## available here:
+#'     ## http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
 #'     ## must unpack and replace "path/to/" with location on your computer
 #'     )
 #' }
 #'
 
-read_word_embeddings <- function(indata,
+read_word_embeddings <- function(in_vocab,
                                  ovefile = NA,
                                  ovefile2 = NA,
                                  wikfile = NA,
@@ -69,7 +97,7 @@ read_word_embeddings <- function(indata,
     ##
     embeddings <- list()
     ## find words in meta embeddings -------------------------------------------
-    thefilter <- function(x, pos) subset(x, word %in% unique(indata))
+    thefilter <- function(x, pos) subset(x, word %in% unique(in_vocab))
     if (!is.na(ovefile)) {
         ## read first meta file ------------------------------------------------
         cat("\nPulling overlapping words from meta word embeddings..\n")

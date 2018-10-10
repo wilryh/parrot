@@ -2,18 +2,19 @@
 % Please edit documentation in R/doc_to_tdm.R
 \name{doc_to_tdm}
 \alias{doc_to_tdm}
-\title{Convert list of documents to sparse term-document matrix.}
+\title{Convert list of documents to sparse term-document matrix}
 \usage{
 doc_to_tdm(out, binary = TRUE)
 }
 \arguments{
-\item{out}{a list of the output from stm \code{prepDocuments}.}
+\item{out}{A list of the output from stm \code{prepDocuments}.}
 
-\item{binary}{if TRUE (default) then only count one occurrence of a word in a document.}
+\item{binary}{A logical scalar. If TRUE (default) then only count one occurrence of a word in a
+document.}
 }
 \description{
-\code{doc_to_tdm} converts list of documents from stm package \code{prepDocuments} function
-to a sparse term-document matrix.
+\code{doc_to_tdm} converts list of documents from stm package
+\code{prepDocuments} function to a sparse term-document matrix.
 }
 \examples{
 
@@ -32,4 +33,12 @@ out <- prepDocuments(
 tdm <- doc_to_tdm(out)
 }
 
+}
+\seealso{
+\code{\link[stm]{prepDocuments}},
+\code{\link[stm]{textProcessor}},
+\code{\link{scale_text}},
+\code{\link{read_word_embeddings}},
+\code{\link{get_keywords}}, \code{\link{plot_keywords}},
+\code{\link{score_documents}}
 }
