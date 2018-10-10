@@ -2,7 +2,7 @@
 #' @export
 #'
 #' @title
-#' Convert list of documents to sparse term-document matrix.
+#' Convert list of documents to sparse term-document matrix
 #'
 #' @description
 #' \code{doc_to_tdm} converts list of documents from stm package \code{prepDocuments} function
@@ -29,7 +29,8 @@
 #' }
 #'
 
-doc_to_tdm <- function(out, binary=TRUE) { #, vocab
+doc_to_tdm <- function(out,
+                       binary = TRUE) {
     if (!requireNamespace("reshape2", quietly = TRUE)) {
         stop(
             "Package \"reshape2\" needed for this function to work. Please install it.",
@@ -37,19 +38,30 @@ doc_to_tdm <- function(out, binary=TRUE) { #, vocab
             )
     }
 
-    d2 <- reshape2::melt(lapply(out$documents, function(x) x[1,]))
+    d2 <- reshape2::melt(lapply(out$documents, function(x) x[1, ]))
     d2 <- data.frame(
-    reshape2::melt(lapply(out$documents, function(x) x[1,])),
-        count=reshape2::melt(lapply(out$documents, function(x) x[2,]))[,1]
+        reshape2::melt(
+                      lapply(out$documents, function(x) x[1, ])
+                  ),
+        count = reshape2::melt(
+                              lapply(out$documents, function(x) x[2, ])
+                          )[ ,1]
         )
 
     if (binary) {
-        tdm <- Matrix::sparseMatrix(as.numeric(d2[,2]), d2[,1], x=rep(1, length(d2[,3])))
+        tdm <- Matrix::sparseMatrix(
+                           as.numeric(d2[ ,2]),
+                           d2[ ,1],
+                           x = rep(1, length(d2[ ,3]))
+                       )
         } else {
-            tdm <- Matrix::sparseMatrix(as.numeric(d2[,2]), d2[,1], x=d2[,3])
+            tdm <- Matrix::sparseMatrix(
+                               as.numeric(d2[ ,2]),
+                               d2[ ,1],
+                               x = d2[ ,3])
         }
 
-    tdm <- tdm[Matrix::rowSums(tdm) > 0,]
+    tdm <- tdm[Matrix::rowSums(tdm) > 0, ]
 
     colnames(tdm) <- out$vocab
     rownames(tdm) <- names(out$documents)

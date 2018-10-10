@@ -1,26 +1,25 @@
 Package: parrot
 Type: Package
 Title: Text Scaling for Open-Ended Survey Responses
+Description: This package scales short text around common words. The method works for open-ended surveys and tweets.
 Version: 0.2.0
 Author: Will Hobbs
 Maintainer: Will Hobbs <william.r.hobbs@gmail.com>
+BugReports: https://github.com/wilryh/parrot/issues
 License: MIT + file LICENSE
-Description: Scales short text. Works for open-ended surveys and tweets.
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0
-Imports: fda,
+Imports: reshape2,
     Matrix,
-    methods,
-    stm,
-    readr,
-    RSpectra,
-    ForeCA,
-    CCA,
-    dplyr,
-    tidyr,
-    reshape2,
-    knitr,
     ggplot2,
     gridExtra,
-    grid
+    magrittr,
+    readr,
+    tidyr,
+    dplyr,
+    RSpectra,
+    CCA,
+    ForeCA,
+    fda
+Suggests: knitr

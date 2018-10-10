@@ -28,7 +28,7 @@
 #' processed <- textProcessor(
 #'     input_data$text,
 #'     data.frame(input_data),
-#'     removestopwords=T, lowercase=T, stem=F
+#'     removestopwords = T, lowercase = T, stem = F
 #'     )
 #' out <- prepDocuments(
 #'     processed$documents, processed$vocab, processed$meta
@@ -39,7 +39,7 @@
 #' # download and extract embeddings data first
 #'
 #' embeddings <- read_word_embeddings(
-#'     indata=out$vocab,
+#'     indata = out$vocab,
 #'     ovefile = "path/to/O2M_overlap.txt"
 #'     ## ovefile2 = "path/to/O2M_oov.txt", # very rare words and misspellings
 #'     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
@@ -47,47 +47,46 @@
 #'     )
 #'
 #' scores <- scale_text(
-#'     meta=out$meta,
-#'     tdm=tdm,
-#'     embeddings=as.matrix(
+#'     meta = out$meta,
+#'     tdm = tdm,
+#'     embeddings = as.matrix(
 #'         embeddings[["meta"]
 #'         ),
-#'     compress_fast=TRUE,
-#'     constrain_outliers=TRUE
+#'     compress_fast = TRUE,
+#'     constrain_outliers = TRUE
 #'     )
 #'
 #' document_scores <- score_documents(
-#'     scores=scores, n_dimensions=10
+#'     scores = scores, n_dimensions = 10
 #'     )
 #'
-#' get_keywords(scores, n_dimensions=3, n_words=15)
+#' get_keywords(scores, n_dimensions = 3, n_words = 15)
 #'
-#' with(document_scores, cor(sqrt(n_words), X0, use="complete"))
+#' with(document_scores, cor(sqrt(n_words), X0, use = "complete"))
 #'
 #' plot_keywords(
-#'     scores, x_dimension=1, y_dimension=2, q_cutoff=0.9
+#'     scores, x_dimension = 1, y_dimension = 2, q_cutoff = 0.9
 #'     )
 #' }
 #'
 
-scale_text <- function(
-                              tdm,
-                              meta=NULL,
-                              tdm_vocab=NULL,
-                              embeddings=NULL,
-                              embeddings_vocab=NULL,
-                              embeddings_ratio=1,
-                              embeddings_count_contribution=1,
-                              compress_fast=FALSE,
-                              n_dimension_compression=NULL,
-                              pivot=2,
-                              verbose=TRUE,
-                              constrain_outliers=TRUE## ,
-                              ## unfocused=TRUE
+scale_text <- function(tdm,
+                       meta = NULL,
+                       tdm_vocab = NULL,
+                       embeddings = NULL,
+                       embeddings_vocab = NULL,
+                       embeddings_ratio = 1,
+                       embeddings_count_contribution = 1,
+                       compress_fast = FALSE,
+                       n_dimension_compression = NULL,
+                       pivot = 2,
+                       verbose = TRUE,
+                       constrain_outliers = TRUE## ,
+                       ## unfocused = TRUE
     )
 {
 
-    ## check vocab
+    ## check vocab -------------------------------------------------------------
     if (!is.null(embeddings_vocab)) {
         rownames(embeddings) <- embeddings_vocab
     }
@@ -105,7 +104,7 @@ scale_text <- function(
         stop("\nPlease supply vocabulary of word embeddings\n")
     }
 
-    ## check compression
+    ## check compression -------------------------------------------------------
     if (is.null(n_dimension_compression)) {
         was_null <- TRUE
         n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
@@ -121,7 +120,7 @@ scale_text <- function(
         embeddings_count_contribution <- 1
     }
 
-    ## prep embeddings
+    ## prep embeddings ---------------------------------------------------------
     if (is.null(embeddings)) {
         vocab_intersect <- colnames(tdm)
         vocab_out <- vocab_intersect
@@ -129,34 +128,43 @@ scale_text <- function(
         vocab_intersect <- intersect(colnames(tdm), rownames(embeddings))
         ##
         tdm_orig <- tdm
-        tdm <- tdm[,vocab_intersect]
-        embeddings <- embeddings[match(vocab_intersect, rownames(embeddings)),]
+        tdm <- tdm[ ,vocab_intersect]
+        embeddings <- embeddings[match(vocab_intersect, rownames(embeddings)), ]
         ## if (!unfocused) {
-            ## emb <- sweep(
-            ##         as.matrix(tdm),
-            ##     2, sqrt(Matrix::colSums(tdm)), `/`
-            ## ) %*% embeddings
-            ## } else {
-                emb <- as.matrix(tdm) %*% embeddings
-            ## }
+        ## emb <- sweep(
+        ##         as.matrix(tdm),
+        ##     2, sqrt(Matrix::colSums(tdm)), `/`
+        ## ) %*% embeddings
+        ## } else {
+        emb <- as.matrix(tdm) %*% embeddings
+        ## }
+        ## add noise for responses with no matches in embeddings
         emb[is.na(emb)] <- sample(emb, sum(is.na(emb)))
         emb_rowsums <- sqrt(rowSums(emb^2))
-        emb_rowsums[emb_rowsums==0] <- sample(emb_rowsums[emb_rowsums!=0], length(emb_rowsums[emb_rowsums==0]))
+        emb_rowsums[emb_rowsums == 0] <- sample(
+            emb_rowsums[emb_rowsums! = 0],
+            length(emb_rowsums[emb_rowsums == 0])
+        )
         if (constrain_outliers) {
             emb <- emb / (emb_rowsums)
-            }
+        }
         ##
+        ## compress docs, map in-sample + out-of-sample to same space ----------
         if (verbose) cat("\nPreparing word embeddings..\n")
         ##
         if (!compress_fast) {
-        if (verbose) cat("    in-sample data..\n")
-            tdm_svd <- svd(as.matrix(tdm), nu=n_dimension_compression, nv=n_dimension_compression)
+            if (verbose) cat("    in-sample data..\n")
+            tdm_svd <- svd(
+                as.matrix(tdm),
+                nu = n_dimension_compression,
+                nv = n_dimension_compression
+            )
             tdm_pcs <- unname(
                 as.matrix(tdm) %*% as.matrix(tdm_svd$v)
             )
             ##
-        if (verbose) cat("    embeddings..\n")
-            emb_svd_coefs <- svd(emb, nu=ncol(emb), nv=ncol(emb))$v
+            if (verbose) cat("    embeddings..\n")
+            emb_svd_coefs <- svd(emb, nu = ncol(emb), nv = ncol(emb))$v
             emb_pcs <- unname(
                 emb %*% emb_svd_coefs
             )
@@ -165,51 +173,66 @@ scale_text <- function(
                 stop(
                     paste(
                         "Package \"RSpectra\" needed for option",
-                        "\"compress_fast=TRUE\" to work. Please install it."
+                        "\"compress_fast = TRUE\" to work. Please install it."
                     ),
                     call. = FALSE
                 )
             }
-        if (verbose) cat("    in-sample data..\n")
+            if (verbose) cat("    in-sample data..\n")
             tdm_svd <- RSpectra::svds(
-                                     tdm, k=n_dimension_compression
+                                     tdm, k = n_dimension_compression
                                  )
             tdm_pcs <- unname(
                 as.matrix(tdm) %*% as.matrix(tdm_svd$v)
             )
             ##
-        if (verbose) cat("    embeddings..\n")
+            if (verbose) cat("    embeddings..\n")
             emb_svd_coefs <- svd(
-                                           emb, nu=ncol(emb)
-                                       )$v
+                emb, nu = ncol(emb)
+            )$v
             emb_pcs <- unname(
                 emb %*% emb_svd_coefs
             )
         }
         ##
+        ## map in-sample and out-of-sample to same space -----------------------
         if (verbose) cat("    aligning..\n")
         emb_cca <- CCA::rcc(
-                            X=as.matrix(tdm_pcs), Y=emb_pcs[,-(1:1)],
-                            lambda1=cov(tdm_pcs)[1,1], lambda2=cov(emb_pcs)[2,2]
-                         )
+                            X = as.matrix(tdm_pcs),
+                            Y = emb_pcs[ ,-(1:1)],
+                            lambda1 = cov(tdm_pcs)[1,1],
+                            lambda2 = cov(emb_pcs)[2,2]
+                        )
 
-        tdm_supp <- (emb_cca$cor^(0.5) * emb_cca$scores$yscores) %*% t(emb_cca$xcoef) %*% t(tdm_svd$v)
+        ## reconstruct tdm -----------------------------------------------------
+        tdm_supp <- (emb_cca$cor^(0.5) * emb_cca$scores$yscores) %*%
+            t(emb_cca$xcoef) %*% t(tdm_svd$v)
+        ## add words where above threshold
         tdm_supp <- tdm_supp > quantile(
-                           tdm_supp,
-                           1 - ((sum(tdm_orig) * embeddings_ratio) / length(tdm_supp))
-                           )
+                                   tdm_supp,
+                                   1 - ((sum(tdm_orig) * embeddings_ratio) /
+                                        length(tdm_supp))
+                               )
 
-        vocab_out <- c(colnames(tdm_orig), paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))
+        vocab_out <- c(
+            colnames(tdm_orig),
+            paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB")
+        )
 
-        tdm <- as(cbind(tdm_orig, tdm_supp[,colSums(tdm_supp)>0]), "dgCMatrix")
+        tdm <- as(cbind(tdm_orig, tdm_supp[ ,colSums(tdm_supp)>0]), "dgCMatrix")
         colnames(tdm) <- vocab_out
 
         rownames(embeddings) <- NULL
-        embeddings <- rbind(embeddings, embeddings[colSums(tdm_supp)>0,])
+        embeddings <- rbind(embeddings, embeddings[colSums(tdm_supp)>0, ])
 
-        embeddings <- emb_cca$cor^(0.5) * ((embeddings %*% emb_svd_coefs)[,-(1:1)] %*% emb_cca$ycoef) #
+        ## pare embeddings -----------------------------------------------------
+        embeddings <- emb_cca$cor^(0.5) *
+            ((embeddings %*% emb_svd_coefs)[ ,-(1:1)] %*% emb_cca$ycoef)
 
-        rownames(embeddings) <-c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))
+        rownames(embeddings) <-c(
+            vocab_intersect,
+            paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB")
+        )
 
         if (was_null) {
             n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
@@ -217,26 +240,34 @@ scale_text <- function(
 
     }
 
+    ## scale text --------------------------------------------------------------
     if (verbose) cat("Computing word co-occurrences..\n")
 
     cooccur <- as.matrix(Matrix::crossprod(tdm))
+    used_vocab <- c(
+        vocab_intersect,
+        paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB")
+    )
     ##
     word_counts <- diag(cooccur)
     if (!is.null(embeddings)) {
-        word_counts[grepl("_EMB", vocab_out)] <- word_counts[grepl("_EMB", vocab_out)]*embeddings_count_contribution
-        word_counts <- word_counts[vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))]
+        word_counts[grepl("_EMB", vocab_out)] <- word_counts[grepl("_EMB", vocab_out)] *
+            embeddings_count_contribution
+        word_counts <- word_counts[vocab_out %in% used_vocab]
     }
     ##
     standardized_cooccur <- scale(
         sweep(cooccur, 1, diag(cooccur), `/`)^(1/2),
-        scale=F
+        scale = F
     )
 
+    ## compress text -----------------------------------------------------------
     if (verbose) cat("Compressing text..\n")
 
     if (!compress_fast) {
         cooccur_svd_coefs <- svd(
-            as.matrix(standardized_cooccur), nu=n_dimension_compression, nv=n_dimension_compression
+            as.matrix(standardized_cooccur),
+            nu = n_dimension_compression, nv = n_dimension_compression
         )$v
         rotated_data <- unname(
             as.matrix(standardized_cooccur) %*% as.matrix(cooccur_svd_coefs)
@@ -246,45 +277,45 @@ scale_text <- function(
               stop(
                   paste(
                       "Package \"RSpectra\" needed for option",
-                      "\"compress_fast=TRUE\" to work. Please install it."
+                      "\"compress_fast = TRUE\" to work. Please install it."
                      ),
                   call. = FALSE
                   )
           }
         thesvd_coefs <- RSpectra::svds(
             as(crossprod(standardized_cooccur), "dgCMatrix"),
-            k=n_dimension_compression
+            k = n_dimension_compression
             )$v
         rotated_data <- unname(
             as.matrix(standardized_cooccur) %*% as.matrix(thesvd_coefs)
             )
     }
 
+    ## pivot 1 -----------------------------------------------------------------
     if (verbose) cat("Regularizing words and n grams..\n")
     if (verbose) cat("    power:", pivot,"\n")
 
     if (is.null(embeddings)) {
         X1 <- rotated_data
         } else {
-            X1 <- rotated_data[vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB")),]
-            tdm <- tdm[,vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))]
-            vocab_out <- vocab_out[vocab_out %in% c(vocab_intersect, paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB"))]
+            X1 <- rotated_data[vocab_out %in% used_vocab, ]
+            tdm <- tdm[ ,vocab_out %in% used_vocab]
+            vocab_out <- vocab_out[vocab_out %in% used_vocab]
             }
 
-    reg <- cov(X1[,1:2])[1,1]
+    reg <- cov(X1[ ,1:2])[1,1]
 
     if (is.null(embeddings)) {
     Y1 <- sweep(
-        ForeCA::whiten(X1[,1:n_dimension_compression])$U, 1,
+        ForeCA::whiten(X1[ ,1:n_dimension_compression])$U, 1,
         word_counts^pivot
        ,
         `*`
     )
     } else {
     Y1 <- sweep(
-        (embeddings), 1,
-        word_counts^pivot
-       ,
+        embeddings, 1,
+        word_counts^pivot,
         `*`
     )
     }
@@ -304,17 +335,18 @@ scale_text <- function(
     word_scores1 = X1.aux %*% res1$xcoef
     aux_pivots = sqrt(
         rowSums(((Y1.aux %*% res1$ycoef)^2))
-        )
+    )
     ##
 
 
+    ## pivot 2 -----------------------------------------------------------------
     if (constrain_outliers) {
-    regularized_word_scores1 <- sweep(
-        word_scores1, 1,
-        sqrt(rowSums(word_scores1^2))
-        ,
-        `/`
-    )
+        regularized_word_scores1 <- sweep(
+            word_scores1, 1,
+            sqrt(rowSums(word_scores1^2))
+           ,
+            `/`
+        )
     } else {
         regularized_word_scores1 <- word_scores1
     }
@@ -325,23 +357,23 @@ scale_text <- function(
     X2 <- regularized_word_scores1
 
     if (is.null(embeddings)) {
-    if (verbose) cat("    (no word embeddings provided)\n")
-    Y2 <- sweep(
-        ForeCA::whiten(X2)$U, 1,
-        aux_pivots *
-        word_counts^pivot
-       ,
-        `*`
-    )
+        if (verbose) cat("    (no word embeddings provided)\n")
+        Y2 <- sweep(
+            ForeCA::whiten(X2)$U, 1,
+            aux_pivots *
+            word_counts^pivot
+           ,
+            `*`
+        )
     } else {
-    Y2 <- sweep(
+        Y2 <- sweep(
         (embeddings), 1,
         aux_pivots *
         word_counts^pivot
        ,
         `*`
-    )
-      }
+        )
+    }
 
     ## regularized canonical correlation analysis (rcc)
     ## pivot step
@@ -365,11 +397,10 @@ scale_text <- function(
             vocab = vocab_out,
             tdm = tdm,
             meta = meta,
-            ## pca_comparison = X1,
             word_scores = word_scores,
             word_counts = word_counts,
             pivot_scores = pivot_scores
-            )
         )
+    )
 
-    }
+}
