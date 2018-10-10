@@ -18,16 +18,15 @@ The scale_text function suggests a truncation for the SVD. It is a function of t
 
 ```{r example}
 
-install.packages(c("stm","ggplot2","gridExtra","Matrix","reshape2","ForeCA","devtools","magrittr"))
-## word embeddings
-install.packages(c("dplyr","readr","tidyr","CCA"))
-## recommended
-install.packages(c("RSpectra","roxygen2"))
-## optional
-install.packages(c("knitr"))
+## ## packages installed in install_github(, dependencies=TRUE)
+## install.packages(c("stm","ggplot2","gridExtra","Matrix","reshape2","ForeCA","devtools","magrittr","RSpectra"))
+## ## word embeddings
+## install.packages(c("dplyr","readr","tidyr","CCA"))
+## ## optional (not installed)
+## install.packages(c("knitr"))
 
 library(devtools)
-install_github("wilryh/parrot")
+install_github("wilryh/parrot", dependencies=TRUE)
 
 library(stm)
 library(parrot)
