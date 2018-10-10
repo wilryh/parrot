@@ -1,4 +1,4 @@
 #' @import Matrix
-#' @importFrom methods as
+#' @import methods
 #' @importFrom stats cov kmeans quantile var
 NULL

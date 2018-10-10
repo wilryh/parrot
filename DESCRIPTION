@@ -21,5 +21,6 @@ Imports: reshape2,
     RSpectra,
     CCA,
     ForeCA,
-    fda
+    fda,
+    methods
 Suggests: knitr

@@ -19,10 +19,13 @@
 #' makes better use of out-of-sample word embeddings.
 #'
 #' The scale_text function suggests a truncation for the SVD. It is a function
-#' of the vocabulary size and produces approximately the same number of pivot words.
+#' of the vocabulary size and produces approximately the same number of pivot
+#' words.
 #'
 #' @examples \dontrun{
-#'  ## install.packages(c("stm","ggplot2","gridExtra","Matrix","reshape2","ForeCA","devtools","magrittr"))
+#'  ## install.packages(
+#'  ##     c("stm","ggplot2","gridExtra","Matrix",
+#'  ##       "reshape2","ForeCA","devtools","magrittr"))
 #'  #### word embeddings
 #'  ## install.packages(c("dplyr","readr","tidyr","CCA"))
 #'  #### recommended
@@ -50,9 +53,11 @@
 #'
 #' embeddings <- read_word_embeddings(
 #'     in_vocab=out$vocab,
-#'     ovefile = "O2M_overlap.txt" # must add location on your computer "path/to/O2M_overlap.txt"
+#'     ovefile = "O2M_overlap.txt" # must add location on your computer
+#'         ## "path/to/O2M_overlap.txt"
 #'     ## ovefile2 = "path/to/O2M_oov.txt", # very rare words and misspellings
-#'     ## available here http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
+#'     ## available here:
+#'     ## http://www.cis.uni-muenchen.de/~wenpeng/renamed-meta-emb.tar.gz
 #'     ## must unpack and replace "path/to/" with location on your computer
 #'     )
 #'
