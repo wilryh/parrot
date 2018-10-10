@@ -64,9 +64,7 @@
 #' scores <- scale_text(
 #'     meta=out$meta,
 #'     tdm=tdm,
-#'     embeddings=as.matrix(
-#'         embeddings[["meta"]
-#'         ),
+#'     embeddings=embeddings[["meta"]],
 #'     compress_fast=TRUE,
 #'     constrain_outliers=TRUE
 #'     )
