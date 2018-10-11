@@ -15,9 +15,6 @@
 #' common words and rare words, along with a standardization in between stages
 #' to help with messier data sets (tweets).
 #'
-#' Finally, there is additional preprocessing step (inside "scale_text()") that
-#' makes better use of out-of-sample word embeddings.
-#'
 #' The scale_text function suggests a truncation for the SVD. It is a function
 #' of the vocabulary size and produces approximately the same number of pivot
 #' words.
