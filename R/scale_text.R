@@ -260,10 +260,14 @@ scale_text <- function(tdm,
     if (verbose) cat("Computing word co-occurrences..\n")
 
     cooccur <- as.matrix(Matrix::crossprod(tdm))
+    if (!is.null(embeddings)) {
     used_vocab <- c(
         vocab_intersect,
         paste0(vocab_intersect[colSums(tdm_supp)>0], "_EMB")
     )
+    } else {
+        used_vocab <- vocab_intersect
+    }
     ##
     word_counts <- diag(cooccur)
     if (!is.null(embeddings)) {
