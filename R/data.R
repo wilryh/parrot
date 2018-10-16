@@ -1,0 +1,23 @@
+#' 2016 ANES open-ended -- dislike of Democratic or Republican party
+#'
+#' A dataset containing the open-ended survey responses from partisans who do
+#' not like the opposing party in the US. This version excludes Democrats who
+#' don't like the Republican party talking about the Democratic party and
+#' Republicans who don't like the Democratic party talking about the Republican
+#' party.
+#'
+#' @format A data frame with 3286 rows and 6 variables:
+#' \describe{
+#'   \item{id}{ANES id}
+#'   \item{text}{Open-ended text}
+#'   \item{rephatesdems}{Feeling thermometer lower than 40 - Republican rating
+#' Democratic party}
+#'   \item{demhatesreps}{Feeling thermometer lower than 40 - Democrat rating
+#' Republican party}
+#'   \item{dislike_dem_party}{"Is there anything R dislikes about Democratic
+#' Party"}
+#'   \item{dislike_rep_party}{"Is there anything R dislikes about Republican
+#' Party"}
+#' }
+#' @source \url{https://twitter.com/MattGrossmann/status/1050826155987795968}
+"partisans"
