@@ -124,6 +124,9 @@ scale_text <- function(tdm,
     if (is.null(n_dimension_compression)) {
         was_null <- TRUE
         n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
+        if (n_dimension_compression > nrow(tdm)) {
+            n_dimension_compression <- nrow(tdm)
+        }
     } else {
         was_null <- FALSE
     }
