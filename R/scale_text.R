@@ -110,7 +110,7 @@ scale_text <- function(tdm,
         colnames(tdm) <- tdm_vocab
     }
 
-    if (is.null(rownames(embeddings)) & is.null(names(tdm)) & !is.null(embeddings)) {
+    if (is.null(rownames(embeddings)) & is.null(colnames(tdm)) & !is.null(embeddings)) {
         stop("\nPlease supply vocabulary of term-document matrix and word embeddings\n")
     }
     if (is.null(colnames(tdm))) {
