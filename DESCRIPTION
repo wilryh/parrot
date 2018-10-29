@@ -23,4 +23,5 @@ Imports: reshape2,
     ForeCA,
     fda,
     methods
-Suggests: knitr
+Suggests: knitr,
+    textir

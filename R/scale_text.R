@@ -147,7 +147,11 @@ scale_text <- function(tdm,
         vocab_intersect <- intersect(colnames(tdm), rownames(embeddings))
         ##
         tdm_orig <- tdm
-        tdm <- tdm[ ,vocab_intersect]
+        ## tf-idf, with normalization, from textir
+        tdm_idf <- log(nrow(tdm)) - log(colSums(tdm > 0) + 1)
+        tdm_tfidf <- t(t(tdm/rowSums(tdm)) * tdm_idf)
+        ##
+        tdm <- tdm_tfidf[ ,vocab_intersect]
         embeddings <- embeddings[match(vocab_intersect, rownames(embeddings)), ]
         ## if (!unfocused) {
         ## emb <- sweep(
@@ -289,7 +293,7 @@ scale_text <- function(tdm,
 
     if (!compress_fast) {
         cooccur_svd_coefs <- svd(
-            as.matrix(standardized_cooccur),
+            as.matrix((standardized_cooccur)),
             nu = n_dimension_compression, nv = n_dimension_compression
         )$v
         rotated_data <- unname(
@@ -306,7 +310,7 @@ scale_text <- function(tdm,
                   )
           }
         thesvd_coefs <- RSpectra::svds(
-            as(crossprod(standardized_cooccur), "dgCMatrix"),
+            as((standardized_cooccur), "dgCMatrix"),
             k = n_dimension_compression
             )$v
         rotated_data <- unname(
