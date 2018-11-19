@@ -103,7 +103,15 @@ plot_keywords <- function(scores,
                      ) +
             ggplot2::xlab(paste("Dimension:",x_dimension - 1)) +
             ggplot2::ylab(paste("Dimension:", y_dimension - 1)) +
-            ggplot2::guides(size=F) + ggplot2::theme_classic()
+            ggplot2::guides(size=F) + ggplot2::theme_classic() +
+            ggplot2::xlim(
+                         -max(abs(word_scores[above_cutoff,x_dimension])),
+                         max(abs(word_scores[above_cutoff,x_dimension]))
+                     ) +
+            ggplot2::ylim(
+                         -max(abs(word_scores[above_cutoff,y_dimension])),
+                         max(abs(word_scores[above_cutoff,y_dimension]))
+                     )
     } else {
         ## bw plot  ------------------------------------------------------------
         g <- ggplot2::ggplot() +
@@ -121,7 +129,15 @@ plot_keywords <- function(scores,
                      ) +
             ggplot2::xlab(paste("Dimension:",x_dimension - 1)) +
             ggplot2::ylab(paste("Dimension:", y_dimension - 1)) +
-            ggplot2::guides(size=F, color=F) + ggplot2::theme_classic()
+            ggplot2::guides(size=F, color=F) + ggplot2::theme_classic() +
+            ggplot::xlim(
+                         -max(abs(word_scores[above_cutoff,x_dimension])),
+                         max(abs(word_scores[above_cutoff,x_dimension]))
+                     ) +
+            ggplot::ylim(
+                         -max(abs(word_scores[above_cutoff,y_dimension])),
+                         max(abs(word_scores[above_cutoff,y_dimension]))
+                     )
     }
 
     ## print -------------------------------------------------------------------
