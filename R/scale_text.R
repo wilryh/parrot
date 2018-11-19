@@ -103,6 +103,10 @@ scale_text <- function(tdm,
 {
 
     ## check vocab -------------------------------------------------------------
+    if (class(tdm)!="dgCMatrix") {
+        tdm <- as(tdm, "dgCMatrix")
+        }
+
     if (!is.null(embeddings_vocab)) {
         rownames(embeddings) <- embeddings_vocab
     }
@@ -148,22 +152,16 @@ scale_text <- function(tdm,
         ##
         tdm_orig <- tdm
         ## tf-idf, with normalization, from textir
-        tdm_idf <- log(nrow(tdm)) - log(colSums(tdm > 0) + 1)
-        tdm_tfidf <- t(t(tdm/rowSums(tdm)) * tdm_idf)
+        tdm_idf <- log(nrow(tdm)) - log(Matrix::colSums(tdm > 0) + 1)
+        tdm_tfidf <- Matrix::t(Matrix::t(tdm/Matrix::rowSums(tdm)) * tdm_idf)
         ##
         tdm <- tdm_tfidf[ ,vocab_intersect]
         embeddings <- embeddings[match(vocab_intersect, rownames(embeddings)), ]
-        ## if (!unfocused) {
-        ## emb <- sweep(
-        ##         as.matrix(tdm),
-        ##     2, sqrt(Matrix::colSums(tdm)), `/`
-        ## ) %*% embeddings
-        ## } else {
-        emb <- as.matrix(tdm) %*% embeddings
-        ## }
+        ##
+        emb <- (tdm) %*% embeddings
         ## add noise for responses with no matches in embeddings
         emb[is.na(emb)] <- sample(emb, sum(is.na(emb)))
-        emb_rowsums <- sqrt(rowSums(emb^2))
+        emb_rowsums <- sqrt(Matrix::rowSums(emb^2))
         emb_rowsums[emb_rowsums == 0] <- sample(
             emb_rowsums[emb_rowsums != 0],
             length(emb_rowsums[emb_rowsums == 0])
@@ -178,18 +176,20 @@ scale_text <- function(tdm,
         if (!compress_fast) {
             if (verbose) cat("    in-sample data..\n")
             tdm_svd <- svd(
-                as.matrix(tdm),
+                (tdm),
                 nu = n_dimension_compression,
                 nv = n_dimension_compression
             )
-            tdm_pcs <- unname(
-                as.matrix(tdm) %*% as.matrix(tdm_svd$v)
+            tdm_pcs <- unname(as.matrix(
+            (tdm) %*% (tdm_svd$v)
+            )
             )
             ##
             if (verbose) cat("    embeddings..\n")
             emb_svd_coefs <- svd(emb, nu = ncol(emb), nv = ncol(emb))$v
-            emb_pcs <- unname(
+            emb_pcs <- unname(as.matrix(
                 emb %*% emb_svd_coefs
+                )
             )
         } else {
             if (!requireNamespace("RSpectra", quietly = TRUE)) {
@@ -205,23 +205,24 @@ scale_text <- function(tdm,
             tdm_svd <- RSpectra::svds(
                                      tdm, k = n_dimension_compression
                                  )
-            tdm_pcs <- unname(
-                as.matrix(tdm) %*% as.matrix(tdm_svd$v)
-            )
+            tdm_pcs <- unname(as.matrix(
+                (tdm) %*% (tdm_svd$v)
+            ))
             ##
             if (verbose) cat("    embeddings..\n")
             emb_svd_coefs <- svd(
                 emb, nu = ncol(emb)
             )$v
-            emb_pcs <- unname(
+            emb_pcs <- unname(as.matrix(
                 emb %*% emb_svd_coefs
+                )
             )
         }
         ##
         ## map in-sample and out-of-sample to same space -----------------------
         if (verbose) cat("    aligning..\n")
         emb_cca <- CCA::rcc(
-                            X = as.matrix(tdm_pcs),
+                            X = tdm_pcs,
                             Y = emb_pcs[ ,-(1:1)],
                             lambda1 = cov(tdm_pcs)[1,1],
                             lambda2 = cov(emb_pcs)[2,2]
@@ -266,7 +267,7 @@ scale_text <- function(tdm,
     ## scale text --------------------------------------------------------------
     if (verbose) cat("Computing word co-occurrences..\n")
 
-    cooccur <- as.matrix(Matrix::crossprod(tdm))
+    cooccur <- Matrix::crossprod(tdm)
     if (!is.null(embeddings)) {
     used_vocab <- c(
         vocab_intersect,
@@ -276,29 +277,38 @@ scale_text <- function(tdm,
         used_vocab <- vocab_intersect
     }
     ##
-    word_counts <- diag(cooccur)
+    word_counts <- Matrix::diag(cooccur)
     if (!is.null(embeddings)) {
         word_counts[grepl("_EMB", vocab_out)] <- word_counts[grepl("_EMB", vocab_out)] *
             embeddings_count_contribution
         word_counts <- word_counts[vocab_out %in% used_vocab]
     }
     ##
-    standardized_cooccur <- scale(
-        sweep(cooccur, 1, diag(cooccur), `/`)^(1/2),
-        scale = F
-    )
+    ## standardized_cooccur <- scale(
+    ##     sweep(cooccur, 1, Matrix::diag(cooccur), `/`)^(1/2),
+    ##     scale = F
+    ## )
+    standardized_cooccur <- cooccur
+    ## standardize rows
+    ## standardized_cooccur@x <- standardized_cooccur@x /
+    ##     rep.int(Matrix::diag(standardized_cooccur), diff(standardized_cooccur@p))
+    standardized_cooccur <- Matrix::diag(x = 1 / Matrix::diag(standardized_cooccur)) %*% standardized_cooccur
+    standardized_cooccur@x <- standardized_cooccur@x^(1/2)
+    ## center matrix
+    ## standardized_cooccur@x <- standardized_cooccur@x -
+    ##     rep.int(Matrix::colMeans(standardized_cooccur), diff(standardized_cooccur@p))
 
     ## compress text -----------------------------------------------------------
     if (verbose) cat("Compressing text..\n")
 
     if (!compress_fast) {
         cooccur_svd_coefs <- svd(
-            as.matrix((standardized_cooccur)),
+            ((standardized_cooccur)),
             nu = n_dimension_compression, nv = n_dimension_compression
         )$v
-        rotated_data <- unname(
-            as.matrix(standardized_cooccur) %*% as.matrix(cooccur_svd_coefs)
-        )
+        rotated_data <- unname(as.matrix((
+            (standardized_cooccur) %*% (cooccur_svd_coefs)
+        )[,1:n_dimension_compression]))
     } else {
           if (!requireNamespace("RSpectra", quietly = TRUE)) {
               stop(
@@ -313,9 +323,9 @@ scale_text <- function(tdm,
             as((standardized_cooccur), "dgCMatrix"),
             k = n_dimension_compression
             )$v
-        rotated_data <- unname(
-            as.matrix(standardized_cooccur) %*% as.matrix(thesvd_coefs)
-            )
+        rotated_data <- unname(as.matrix((
+            (standardized_cooccur) %*% (thesvd_coefs)
+            ))[,1:n_dimension_compression])
     }
 
     ## pivot 1 -----------------------------------------------------------------
