@@ -288,15 +288,19 @@ scale_text <- function(tdm,
     ##     sweep(cooccur, 1, Matrix::diag(cooccur), `/`)^(1/2),
     ##     scale = F
     ## )
-    standardized_cooccur <- cooccur
-    ## standardize rows
-    ## standardized_cooccur@x <- standardized_cooccur@x /
-    ##     rep.int(Matrix::diag(standardized_cooccur), diff(standardized_cooccur@p))
-    standardized_cooccur <- Matrix::diag(x = 1 / Matrix::diag(standardized_cooccur)) %*% standardized_cooccur
+    standardized_cooccur <- as(cooccur, "dgCMatrix")
+    ## standardize rows (sparse matrix is by column, already symmetric matrix)
+    standardized_cooccur@x <- standardized_cooccur@x /
+        rep.int(Matrix::colSums(standardized_cooccur), diff(standardized_cooccur@p))
     standardized_cooccur@x <- standardized_cooccur@x^(1/2)
-    ## center matrix
+    ## columns --> rows
+    standardized_cooccur <- Matrix::t(standardized_cooccur)
+    ## center matrix (unnecessary)
     ## standardized_cooccur@x <- standardized_cooccur@x -
-    ##     rep.int(Matrix::colMeans(standardized_cooccur), diff(standardized_cooccur@p))
+    ##     rep.int(
+    ##         Matrix::colMeans(standardized_cooccur),
+    ##         diff(standardized_cooccur@p)
+    ##     )
 
     ## compress text -----------------------------------------------------------
     if (verbose) cat("Compressing text..\n")
