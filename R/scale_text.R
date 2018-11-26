@@ -33,6 +33,7 @@
 #' @param embeddings_vocab A character vector. Provide vocabulary for rows of
 #' chosen embeddings if missing in row names.
 #' @param verbose A logical scalar. Print progress of the function.
+#' @param simple A logical scalar. Pivot once.
 #'
 #' @examples
 #' \dontrun{
@@ -97,7 +98,9 @@ scale_text <- function(tdm,
                        n_dimension_compression = NULL,
                        pivot = 2,
                        verbose = TRUE,
-                       constrain_outliers = TRUE## ,
+                       constrain_outliers = TRUE,
+                       simple = FALSE
+                       ## ,
                        ## unfocused = TRUE
     )
 {
@@ -346,6 +349,15 @@ scale_text <- function(tdm,
 
     reg <- cov(X1[ ,1:2])[1,1]
 
+    if (constrain_outliers) {
+        X1 <- sweep(
+                X1, 1,
+                sqrt(rowSums(X1^2))
+               ,
+                `/`
+            )
+    }
+
     if (is.null(embeddings)) {
     Y1 <- sweep(
         ForeCA::whiten(X1[ ,1:n_dimension_compression])$U, 1,
@@ -380,60 +392,71 @@ scale_text <- function(tdm,
     ##
 
 
-    ## pivot 2 -----------------------------------------------------------------
-    if (constrain_outliers) {
-        regularized_word_scores1 <- sweep(
-            word_scores1, 1,
-            sqrt(rowSums(word_scores1^2))
-           ,
-            `/`
-        )
+    if (simple) {
+
+        word_scores <- word_scores1
+        pivot_scores <- pivot_scores1
+        res2 <- res1
+
     } else {
-        regularized_word_scores1 <- word_scores1
-    }
 
-    if (verbose) cat("Pivoting..\n")
-    if (verbose) cat("    power:", pivot,"\n")
+        ## pivot 2 -----------------------------------------------------------------
+        if (constrain_outliers) {
+            regularized_word_scores1 <- sweep(
+                word_scores1, 1,
+                sqrt(rowSums(word_scores1^2))
+               ,
+                `/`
+            )
+        } else {
+            regularized_word_scores1 <- word_scores1
+        }
 
-    X2 <- regularized_word_scores1
+        if (verbose) cat("Pivoting..\n")
+        if (verbose) cat("    power:", pivot,"\n")
 
-    if (is.null(embeddings)) {
-        if (verbose) cat("    (no word embeddings provided)\n")
-        Y2 <- sweep(
-            ForeCA::whiten(X2)$U, 1,
+        X2 <- regularized_word_scores1
+
+        if (is.null(embeddings)) {
+            if (verbose) cat("    (no word embeddings provided)\n")
+            Y2 <- sweep(
+                ForeCA::whiten(X2)$U, 1,
+                aux_pivots *
+                word_counts^pivot
+               ,
+                `*`
+            )
+        } else {
+            Y2 <- sweep(
+            (embeddings), 1,
             aux_pivots *
             word_counts^pivot
            ,
             `*`
-        )
-    } else {
-        Y2 <- sweep(
-        (embeddings), 1,
-        aux_pivots *
-        word_counts^pivot
-       ,
-        `*`
-        )
+            )
+        }
+
+        ## regularized canonical correlation analysis (rcc)
+        ## pivot step
+        Cxx2 <- diag(1, ncol(X2))
+        Cyy2 <- var(Y2, na.rm = TRUE, use = "pairwise")
+        ##
+        Cxy2 <- cov(X2, Y2, use = "pairwise")
+        res2 <- fda::geigen(Cxy2, Cxx2, Cyy2)
+        names(res2) <- c("cor", "xcoef", "ycoef")
+        ##
+        X2.aux = scale(X2, center = TRUE, scale = FALSE)
+        Y2.aux = scale(Y2, center = TRUE, scale = FALSE)
+        ##
+
+        word_scores = X2.aux %*% res2$xcoef
+        pivot_scores = Y2.aux %*% res2$ycoef
+
     }
-
-    ## regularized canonical correlation analysis (rcc)
-    ## pivot step
-    Cxx2 <- diag(1, ncol(X2))
-    Cyy2 <- var(Y2, na.rm = TRUE, use = "pairwise")
-    ##
-    Cxy2 <- cov(X2, Y2, use = "pairwise")
-    res2 <- fda::geigen(Cxy2, Cxx2, Cyy2)
-    names(res2) <- c("cor", "xcoef", "ycoef")
-    ##
-    X2.aux = scale(X2, center = TRUE, scale = FALSE)
-    Y2.aux = scale(Y2, center = TRUE, scale = FALSE)
-    ##
-
-    word_scores = X2.aux %*% res2$xcoef
-    pivot_scores = Y2.aux %*% res2$ycoef
 
     return(
         list(
+            simple = simple,
             unadjusted_importance = res2$cor,
             vocab = vocab_out,
             tdm = tdm,
