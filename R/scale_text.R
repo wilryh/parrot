@@ -386,6 +386,7 @@ scale_text <- function(tdm,
     Y1.aux = scale(Y1, center = TRUE, scale = FALSE)
     ##
     word_scores1 = X1.aux %*% res1$xcoef
+    pivot_scores1 = Y1.aux %*% res1$ycoef
     aux_pivots = sqrt(
         rowSums(((Y1.aux %*% res1$ycoef)^2))
     )
