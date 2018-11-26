@@ -130,11 +130,11 @@ plot_keywords <- function(scores,
             ggplot2::xlab(paste("Dimension:",x_dimension - 1)) +
             ggplot2::ylab(paste("Dimension:", y_dimension - 1)) +
             ggplot2::guides(size=F, color=F) + ggplot2::theme_classic() +
-            ggplot::xlim(
+            ggplot2::xlim(
                          -max(abs(word_scores[above_cutoff,x_dimension])),
                          max(abs(word_scores[above_cutoff,x_dimension]))
                      ) +
-            ggplot::ylim(
+            ggplot2::ylim(
                          -max(abs(word_scores[above_cutoff,y_dimension])),
                          max(abs(word_scores[above_cutoff,y_dimension]))
                      )
