@@ -32,9 +32,7 @@ recommended number of dimensions will be calculated automatically.}
 
 \item{pivot}{An integer scalar. This is the power of the pivot. It should be
 set as high as possible as long as algorithm still works. 2 or 4 is a good
-bet. If the method does not converge at 2, try lowering
-\code{n_dimension_compression} to the sqrt of the vocabulary size. If that
-does not work, you might need to run without out-of-sample embeddings.}
+bet. If using out-of-sample embeddings, this can be set lower (e.g. 1/2).}
 
 \item{verbose}{A logical scalar. Print progress of the function.}
 
