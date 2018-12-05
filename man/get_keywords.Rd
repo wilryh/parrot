@@ -4,7 +4,8 @@
 \alias{get_keywords}
 \title{List keywords from \code{scale_text}}
 \usage{
-get_keywords(scores, n_dimensions, n_words = 15, unstretch = TRUE)
+get_keywords(scores, n_dimensions, n_words = 15, stretch = 3,
+  capture_output = FALSE, pivots_only = TRUE)
 }
 \arguments{
 \item{scores}{List from output of \code{scale_text}.}
@@ -14,7 +15,7 @@ print.}
 
 \item{n_words}{An integer scalar. How many keywords for each dimension.}
 
-\item{unstretch}{A logical scalar. Reduce importance of pivot words in
+\item{stretch}{A scalar. Must be positive, odd integer. Reduce importance of pivot words in
 specific (<-- and -->) keywords.}
 }
 \description{

@@ -53,7 +53,8 @@ embeddings <- read_word_embeddings(
 scores <- scale_text(
     meta=out$meta,
     tdm=tdm,
-    embeddings=embeddings[["meta"]],
+##    embeddings=embeddings[["meta"]], ## embeddings have little
+##    effect on output -- if used, set pivot lower (e.g. pivot = 1/2)
     compress_fast=TRUE,
     constrain_outliers=TRUE
     )

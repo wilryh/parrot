@@ -8,7 +8,7 @@ scale_text(tdm, meta = NULL, tdm_vocab = NULL, embeddings = NULL,
   embeddings_vocab = NULL, embeddings_ratio = 1/4,
   embeddings_count_contribution = 1, compress_fast = FALSE,
   n_dimension_compression = NULL, pivot = 2, verbose = TRUE,
-  constrain_outliers = TRUE)
+  constrain_outliers = TRUE, simple = FALSE)
 }
 \arguments{
 \item{tdm}{A sparseMatrix. Rows are documents and columns are vocabulary.}
@@ -23,12 +23,6 @@ missing in column names.}
 
 \item{embeddings_vocab}{A character vector. Provide vocabulary for rows of
 chosen embeddings if missing in row names.}
-
-\item{embeddings_ratio}{A numeric scalar. Ratio of out-of-sample word
-embeddings to in-sample text for later scaling}
-
-\item{embeddings_count_contribution}{A numeric scalar. Fraction of added
-out-of-sample words to include as pivot words.}
 
 \item{compress_fast}{A logical scalar. use R base (F) or RSpectra (T)}
 
@@ -48,6 +42,11 @@ does not work, you might need to run without out-of-sample embeddings.}
 embedding scores for documents to have approximately unit norms. Recommended
 for online surveys (reduce influence of bad data), focused survey questions,
 and online social media data.}
+
+\item{simple}{A logical scalar. Pivot once.}
+
+\item{holdout}{A logical or numeric vector. A logical or numeric vector
+indicating which rows to exclude from training.}
 }
 \description{
 \code{scale_text} runs pivoted text scaling
@@ -81,7 +80,7 @@ embeddings <- read_word_embeddings(
 scores <- scale_text(
     meta = out$meta,
     tdm = tdm,
-    embeddings = embeddings[["meta"]],
+##    embeddings = embeddings[["meta"]], ## limited effects on output
     compress_fast = TRUE,
     constrain_outliers = TRUE
     )

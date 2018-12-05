@@ -32,6 +32,10 @@
 score_documents <- function(scores, n_dimensions = 10)
     {
 
+        scores$tdm <- scores$tdm_orig[,colnames(scores$tdm_orig) %in%
+                                       colnames(scores$tdm)
+                                      ]
+
         ## score documents
         scored <- scores$tdm %*%
             as(scores$word_scores[ ,1:n_dimensions], "dgCMatrix")
