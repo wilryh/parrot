@@ -15,8 +15,13 @@ print.}
 
 \item{n_words}{An integer scalar. How many keywords for each dimension.}
 
-\item{stretch}{A scalar. Must be positive, odd integer. Reduce importance of pivot words in
-specific (<-- and -->) keywords.}
+\item{stretch}{An integer scalar. Must be positive, odd integer. Reduce
+importance of pivot words in 'specific' keywords.}
+
+\item{capture_output}{A logical scalar. Whether to return the output as an
+object in R.}
+
+\item{pivots_only}{A logical scalar. Whether to show only pivot in keywords.}
 }
 \description{
 \code{get_keywords} lists keywords for each scaled text dimension.
