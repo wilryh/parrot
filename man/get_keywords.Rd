@@ -18,8 +18,8 @@ print.}
 \item{stretch}{An integer scalar. Must be positive, odd integer. Reduce
 importance of pivot words in 'specific' keywords.}
 
-\item{capture_output}{A logical scalar. Whether to return the output as an
-object in R.}
+\item{capture_output}{A logical scalar. Whether to return the output as list
+of data frames rather than print to console.}
 
 \item{pivots_only}{A logical scalar. Whether to show only pivot in keywords.}
 }
