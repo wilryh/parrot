@@ -9,8 +9,13 @@ score_documents(scores, n_dimensions = 10)
 \arguments{
 \item{scores}{A list from output of \code{scale_text}}
 
-\item{n_dimensions}{An integer scalar, How many dimensions of scaled text to
+\item{n_dimensions}{An integer scalar. How many dimensions of scaled text to
 score.}
+
+\item{doc_length_correction}{A numeric scalar. Power on document length:
+document_scores / document_length^(doc_length_correction). Set so
+that extremity on top dimensions is not strongly correlated with document
+length.}
 }
 \description{
 \code{score_documents} uses word scores to assign document scores
