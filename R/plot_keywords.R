@@ -42,7 +42,8 @@ plot_keywords <- function(scores,
                           q_cutoff = 0.9,
                           plot_density = FALSE,
                           unstretch = FALSE,
-                          color = FALSE) {
+                          color = FALSE
+                          ) {
 
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
         stop(
@@ -87,7 +88,7 @@ plot_keywords <- function(scores,
         )
     }
 
-    ## color plot --------------------------------------------------------------
+    ## bw plot -----------------------------------------------------------------
     if (!color) {
         g <- ggplot2::ggplot() +
             ggplot2::geom_text(
@@ -95,9 +96,9 @@ plot_keywords <- function(scores,
                          ggplot2::aes(
                                       x=word_scores[above_cutoff,x_dimension],
                                       y=word_scores[above_cutoff,y_dimension],
-                                      size=word_counts[above_cutoff] *
-                                          sqrt(word_scores[above_cutoff, x_dimension]^2 +
-                                               word_scores[above_cutoff, y_dimension]^2),
+                                      size=word_counts[above_cutoff],##  *
+                                          ## sqrt(word_scores[above_cutoff, x_dimension]^2 +
+                                          ##      word_scores[above_cutoff, y_dimension]^2),
                                       label=scores$vocab[above_cutoff]
                                   )
                      ) +
@@ -113,16 +114,16 @@ plot_keywords <- function(scores,
                          max(abs(word_scores[above_cutoff,y_dimension]))
                      )
     } else {
-        ## bw plot  ------------------------------------------------------------
+        ## color plot  ---------------------------------------------------------
         g <- ggplot2::ggplot() +
             ggplot2::geom_text(
                          data=word_scores[above_cutoff, ],
                          ggplot2::aes(
                                       x=word_scores[above_cutoff,x_dimension],
                                       y=word_scores[above_cutoff,y_dimension],
-                                      size=word_counts[above_cutoff] *
-                                          sqrt(word_scores[above_cutoff, x_dimension]^2 +
-                                               word_scores[above_cutoff, y_dimension]^2),
+                                      size=word_counts[above_cutoff],##  *
+                                          ## sqrt(word_scores[above_cutoff, x_dimension]^2 +
+                                          ##      word_scores[above_cutoff, y_dimension]^2),
                                       label=scores$vocab[above_cutoff],
                                       color=scores$color[above_cutoff]
                                   )
