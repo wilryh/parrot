@@ -230,9 +230,9 @@ scale_text <- function(tdm,
     if (verbose) cat("Regularizing words and n grams..\n")
     if (verbose) cat("    power:", pivot,"\n")
 
-    if (!is.null(embeddings) & pivot > 0.5) {
-        warning("Recommended pivot with embeddings is 1/2.")
-        }
+    ## if (!is.null(embeddings) & pivot > 0.5) {
+    ##     warning("Recommended pivot with embeddings is 1/2.")
+    ##     }
 
     if (is.null(embeddings)) {
         X1 <- rotated_data
