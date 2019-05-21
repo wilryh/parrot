@@ -155,7 +155,8 @@ scale_text <- function(tdm,
 
         ##
         if (was_null) {
-            n_dimension_compression <- sqrt(ncol(tdm))*sqrt(mean(Matrix::rowSums(tdm)))
+            ## n_dimension_compression <- sqrt(ncol(tdm))*sqrt(mean(Matrix::rowSums(tdm)))
+            n_dimension_compression <- sqrt(ncol(tdm))*exp(1)
         }
 
         if (n_dimension_compression <= ncol(embeddings)) {
