@@ -132,8 +132,8 @@ scale_text <- function(tdm,
     ## check compression -------------------------------------------------------
     if (is.null(n_dimension_compression)) {
         was_null <- TRUE
-        ## round(exp(1)^(log(ncol(tdm))/2 + 1))
-        n_dimension_compression <- sqrt(ncol(tdm))*sqrt(mean(Matrix::rowSums(tdm)))
+        n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
+        ## n_dimension_compression <- sqrt(ncol(tdm))*sqrt(mean(Matrix::rowSums(tdm)))
         if (n_dimension_compression > nrow(tdm)) {
             n_dimension_compression <- nrow(tdm)
         }
@@ -200,6 +200,7 @@ scale_text <- function(tdm,
         ## if (!requireNamespace("RSpectra", quietly = TRUE)) {
             cooccur_svd_coefs <- svd(
                 standardized_cooccur,
+                nu = n_dimension_compression,
                 nv = n_dimension_compression
             )
         ## } else {
