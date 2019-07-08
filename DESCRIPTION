@@ -2,7 +2,7 @@ Package: parrot
 Type: Package
 Title: Text Scaling for Open-Ended Survey Responses
 Description: This package scales short text around common words. The method works for open-ended surveys and tweets.
-Version: 0.2.1
+Version: 0.2.2
 Author: Will Hobbs
 Maintainer: Will Hobbs <william.r.hobbs@gmail.com>
 BugReports: https://github.com/wilryh/parrot/issues
