@@ -129,18 +129,6 @@ scale_text <- function(tdm,
         tdm <- tdm[!holdout,Matrix::colSums(tdm[!holdout,])>0]
     }
 
-    ## check compression -------------------------------------------------------
-    if (is.null(n_dimension_compression)) {
-        was_null <- TRUE
-        n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
-        ## n_dimension_compression <- sqrt(ncol(tdm))*sqrt(mean(Matrix::rowSums(tdm)))
-        if (n_dimension_compression > nrow(tdm)) {
-            n_dimension_compression <- nrow(tdm)
-        }
-    } else {
-        was_null <- FALSE
-    }
-
     ## prep embeddings ---------------------------------------------------------
     if (is.null(embeddings)) {
         vocab_intersect <- colnames(tdm)
@@ -153,21 +141,6 @@ scale_text <- function(tdm,
         tdm <- tdm[ ,vocab_intersect]
         embeddings <- embeddings[match(colnames(tdm), rownames(embeddings)), ]
 
-        ##
-        if (was_null) {
-            ## n_dimension_compression <- sqrt(ncol(tdm))*sqrt(mean(Matrix::rowSums(tdm)))
-            n_dimension_compression <- sqrt(ncol(tdm))*exp(1)
-        }
-
-        if (n_dimension_compression <= ncol(embeddings)) {
-            embeddings_svd <- RSpectra::svds(
-                                            embeddings,
-                                            k = n_dimension_compression
-                                        )
-            embeddings <- embeddings_svd$u %*% diag(embeddings_svd$d)
-        } else {
-            warning("Embeddings smaller than proposed truncation.")
-        }
     }
 
     ## scale text --------------------------------------------------------------
@@ -192,24 +165,43 @@ scale_text <- function(tdm,
     ## center matrix (unnecessary -- slowdown, not sparse)
     ## standardized_cooccur <- as(scale(standardized_cooccur, scale = FALSE), "dgCMatrix")
 
+    ## check compression -------------------------------------------------------
+    if (is.null(n_dimension_compression)) {
+        was_null <- TRUE
+        ## n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
+        n_dimension_compression <- sum(
+            Matrix::colSums(standardized_cooccur) >
+            Matrix::rowSums(standardized_cooccur)
+        ) / 2 # approx
+        if (n_dimension_compression > nrow(tdm)) {
+            n_dimension_compression <- nrow(tdm)
+        }
+    } else {
+        was_null <- FALSE
+    }
+
+    if (!is.null(embeddings)) {
+        if (n_dimension_compression <= ncol(embeddings)) {
+            embeddings_svd <- RSpectra::svds(
+                                            embeddings,
+                                            k = n_dimension_compression
+                                        )
+            embeddings <- embeddings_svd$u %*% diag(embeddings_svd$d)
+        } else {
+            warning("Embeddings smaller than proposed truncation.")
+        }
+
+    }
+
     ## compress text -----------------------------------------------------------
     if (verbose) cat("Compressing text..\n")
 
     if (!compress_fast) {
-        ## standardized_cooccur <- scale(standardized_cooccur, scale = FALSE)
-        ##
-        ## if (!requireNamespace("RSpectra", quietly = TRUE)) {
             cooccur_svd_coefs <- svd(
                 standardized_cooccur,
                 nu = n_dimension_compression,
                 nv = n_dimension_compression
             )
-        ## } else {
-        ##     cooccur_svd_coefs <- RSpectra::svds(
-        ##                                        as(standardized_cooccur, "dgCMatrix"),
-        ##                                        k = n_dimension_compression
-        ##                                    )
-        ## }
         rotated_data <- cooccur_svd_coefs$u %*% diag(cooccur_svd_coefs$d)
     } else {
         if (!requireNamespace("RSpectra", quietly = TRUE)) {
