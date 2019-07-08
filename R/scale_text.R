@@ -158,7 +158,7 @@ scale_text <- function(tdm,
     standardized_cooccur <- as(cooccur, "dgCMatrix")
     ## standardize rows (sparse matrix is by column, already symmetric matrix)
     standardized_cooccur@x <- standardized_cooccur@x /
-        rep.int(Matrix::diag(standardized_cooccur), diff(standardized_cooccur@p))
+        rep.int(Matrix::colSums(standardized_cooccur), diff(standardized_cooccur@p))
     standardized_cooccur@x <- standardized_cooccur@x^(1/2)
     ## columns --> rows
     standardized_cooccur <- Matrix::t(standardized_cooccur)
