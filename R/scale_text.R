@@ -170,8 +170,9 @@ scale_text <- function(tdm,
         was_null <- TRUE
         ## n_dimension_compression <- round(exp(1)^(log(ncol(tdm))/2 + 1))
         n_dimension_compression <- sum(
-            Matrix::colSums(standardized_cooccur) >
-            Matrix::rowSums(standardized_cooccur)
+            Matrix::colSums(standardized_cooccur^2) >
+            1
+            ## Matrix::rowSums(standardized_cooccur^2)
         ) / 2 # approx
         if (n_dimension_compression > nrow(tdm)) {
             n_dimension_compression <- nrow(tdm)
