@@ -5,10 +5,9 @@
 \title{Scale text using pivoted text scaling}
 \usage{
 scale_text(tdm, meta = NULL, tdm_vocab = NULL, embeddings = NULL,
-  embeddings_vocab = NULL, embeddings_ratio = 1/4,
-  embeddings_count_contribution = 1, compress_fast = FALSE,
+  embeddings_vocab = NULL, compress_fast = TRUE,
   n_dimension_compression = NULL, pivot = 2, verbose = TRUE,
-  constrain_outliers = TRUE, simple = FALSE)
+  constrain_outliers = FALSE, simple = TRUE, holdout = NULL)
 }
 \arguments{
 \item{tdm}{A sparseMatrix. Rows are documents and columns are vocabulary.}

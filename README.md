@@ -6,11 +6,7 @@ Let me know if you run into any problems.
 
 Paper: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3044864
 
-The method in this code is slightly different from the original method. It uses the square root of counts instead of counts in the word cooccurrence matrix. This makes the 'first' dimension of the output pick up word frequency and document length. This frequency dimension is labeled 'X0' in the output.
-
-The pivoting can now be done in 2 stages for a sharper separation between common words and rare words. The package also includes an option to add standardization in between stages to help with messier data sets (e.g. tweets).
-
-The scale_text function suggests a truncation for the SVD. It is a function of the vocabulary size and produces approximately the same number of pivot words.
+The scale_text function suggests a truncation for the SVD. It produces approximately the same number of pivot words.
 
 ## Example
 
@@ -52,11 +48,9 @@ embeddings <- read_word_embeddings(
 
 scores <- scale_text(
     meta=out$meta,
-    tdm=tdm,
+    tdm=tdm
 ##    embeddings=embeddings[["meta"]], ## embeddings have little effect
 ##    on output -- if used, consider setting pivot lower (e.g. pivot = 1/2)
-    compress_fast=TRUE,
-    constrain_outliers=TRUE
     )
 
 document_scores <- score_documents(

@@ -88,12 +88,12 @@ scale_text <- function(tdm,
                        tdm_vocab = NULL,
                        embeddings = NULL,
                        embeddings_vocab = NULL,
-                       compress_fast = FALSE,
+                       compress_fast = TRUE,
                        n_dimension_compression = NULL,
                        pivot = 2,
                        verbose = TRUE,
-                       constrain_outliers = TRUE,
-                       simple = FALSE,
+                       constrain_outliers = FALSE,
+                       simple = TRUE,
                        holdout = NULL
     )
 {
@@ -265,8 +265,7 @@ scale_text <- function(tdm,
 
     ## regularized canonical correlation analysis (mostly, rcc from CCA)
     ## regularization step
-    Cxx1 <- var(X1, na.rm = TRUE, use = "pairwise") +
-        diag(reg, ncol(X1))
+    Cxx1 <- diag(1, ncol(X1))
     Cyy1 <- var(Y1, na.rm = TRUE, use = "pairwise")
     Cxy1 <- cov(X1, Y1, use = "pairwise")
     res1 <- fda::geigen(Cxy1, Cxx1, Cyy1)
