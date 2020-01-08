@@ -228,7 +228,7 @@ scale_text <- function(tdm,
                                                                        word_counts, decreasing=T
                                                                    )[n_dimension_compression],],
                                               "dgCMatrix"),
-                                           k = round((n_dimension_compression)-5)
+                                           k = round(sqrt(n_dimension_compression))
                                        )
         word_scores <- standardized_cooccur %*% cooccur_svd_coefs$v
         pivot_scores <- word_scores * as.numeric(word_counts >
