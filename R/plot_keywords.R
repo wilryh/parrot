@@ -74,7 +74,7 @@ plot_keywords <- function(scores,
     word_scores <- data.frame(scores$word_scores)
     word_counts <- scores$word_counts
 
-    above_cutoff <- word_counts>quantile(word_counts, q_cutoff)
+    above_cutoff <- word_counts>=quantile(word_counts, q_cutoff)
 
     x_dimension <- x_dimension + 1
     y_dimension <- y_dimension + 1

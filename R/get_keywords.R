@@ -11,8 +11,11 @@
 #' @param n_dimensions Integer scalar or vector. How many/which dimensions to
 #' print.
 #' @param n_words An integer scalar. How many keywords for each dimension.
-#' @param stretch A scalar. Must be positive, odd integer. Reduce importance of pivot words in
-#' specific (<-- and -->) keywords.
+#' @param pivots_only A logical scalar. Whether to show only pivot in keywords.
+#' @param stretch An integer scalar. Must be positive, odd integer. Reduce
+#' importance of pivot words in 'specific' keywords.
+#' @param capture_output A logical scalar. Whether to return the output as list
+#' of data frames rather than print to console.
 #'
 #' @examples
 #' \dontrun{

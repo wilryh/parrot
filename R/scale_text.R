@@ -94,7 +94,8 @@ scale_text <- function(tdm,
                        verbose = TRUE,
                        constrain_outliers = FALSE,
                        simple = TRUE,
-                       holdout = NULL
+                       holdout = NULL,
+                       approx = FALSE
     )
 {
 
@@ -197,6 +198,44 @@ scale_text <- function(tdm,
     ## compress text -----------------------------------------------------------
     if (verbose) cat("Compressing text..\n")
 
+    if (approx) {
+    if (!compress_fast) {
+            cooccur_svd_coefs <- svd(
+                standardized_cooccur[vocab_out %in% used_vocab, ][word_counts > sort(
+                                                       word_counts, decreasing=T
+                                                   )[n_dimension_compression],],
+                ## not necessary to estimate all dimensions with hard truncation
+                nu = round(sqrt(n_dimension_compression)),
+                nv = round(sqrt(n_dimension_compression))
+            )
+        word_scores <- standardized_cooccur %*% cooccur_svd_coefs$v
+        pivot_scores <- word_scores * as.numeric(word_counts > sort(
+                                                                 word_counts, decreasing=T
+                                                             )[n_dimension_compression])
+    } else {
+        if (!requireNamespace("RSpectra", quietly = TRUE)) {
+            stop(
+                paste(
+                    "Package \"RSpectra\" needed for option",
+                    "\"compress_fast = TRUE\" to work. Please install it."
+                ),
+                call. = FALSE
+            )
+        }
+        cooccur_svd_coefs <- RSpectra::svds(
+                                           as(standardized_cooccur[vocab_out %in% used_vocab, ][word_counts >
+                                                                   sort(
+                                                                       word_counts, decreasing=T
+                                                                   )[n_dimension_compression],],
+                                              "dgCMatrix"),
+                                           k = round((n_dimension_compression)-5)
+                                       )
+        word_scores <- standardized_cooccur %*% cooccur_svd_coefs$v
+        pivot_scores <- word_scores * as.numeric(word_counts >
+            sort(
+                word_counts, decreasing=T
+            )[n_dimension_compression])
+    }} else {
     if (!compress_fast) {
             cooccur_svd_coefs <- svd(
                 standardized_cooccur,
@@ -220,7 +259,9 @@ scale_text <- function(tdm,
                                        )
         rotated_data <- cooccur_svd_coefs$u %*% diag(cooccur_svd_coefs$d)
     }
+    }
 
+    if (!approx) {
     ## pivot 1 -----------------------------------------------------------------
     if (verbose) cat("Regularizing words and n grams..\n")
     if (verbose) cat("    power:", pivot,"\n")
@@ -344,6 +385,30 @@ scale_text <- function(tdm,
 
     }
 
+    if (simple) {
+        X2.aux <- X1.aux
+        Y2.aux <- Y1.aux
+    }
+        }
+
+    if (approx) {
+    return(
+        list(
+            simple = simple,
+            unadjusted_importance = cooccur_svd_coefs$d,
+            constrain_outliers = constrain_outliers,
+            holdout = holdout,
+            vocab = vocab_out,
+            tdm = tdm,
+            tdm_orig = tdm_orig,
+            meta = meta,
+            word_scores = word_scores,
+            word_counts = word_counts,
+            pivot_scores = pivot_scores,
+            X_orig = standardized_cooccur
+        )
+        )
+    } else {
     return(
         list(
             simple = simple,
@@ -356,8 +421,27 @@ scale_text <- function(tdm,
             meta = meta,
             word_scores = word_scores,
             word_counts = word_counts,
-            pivot_scores = pivot_scores
+            pivot_scores = pivot_scores,
+            res1 = res1,
+            res2 = res2,
+            X_orig = standardized_cooccur,
+            X1.aux = X1.aux,
+            X2.aux = X2.aux,
+            Y1.aux = Y1.aux,
+            Y2.aux = Y2.aux
+            ## simple = simple,
+            ## unadjusted_importance = res2$cor,
+            ## constrain_outliers = constrain_outliers,
+            ## holdout = holdout,
+            ## vocab = vocab_out,
+            ## tdm = tdm,
+            ## tdm_orig = tdm_orig,
+            ## meta = meta,
+            ## word_scores = word_scores,
+            ## word_counts = word_counts,
+            ## pivot_scores = pivot_scores
         )
     )
+    }
 
 }
